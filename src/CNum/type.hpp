@@ -7,11 +7,11 @@ class INumericType {
 
 };
 
-class Int {
+class Z {
 public:
-	Int(const long& v);
-	bool operator ==(const Int& rhs) const;
-	bool operator !=(const Int& rhs) const;
+	Z(const long& v);
+	bool operator ==(const Z& rhs) const;
+	bool operator !=(const Z& rhs) const;
 private:
 	long m_v;
 };

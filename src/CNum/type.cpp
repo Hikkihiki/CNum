@@ -1,13 +1,13 @@
 #include "type.hpp"
 
-CNum::Int::Int(const long & v) :
+CNum::Z::Z(const long & v) :
 		m_v(v) {
 }
 
-bool CNum::Int::operator ==(const Int& rhs) const {
+bool CNum::Z::operator ==(const Z& rhs) const {
 	return m_v == rhs.m_v;
 }
 
-bool CNum::Int::operator !=(const Int& rhs) const {
+bool CNum::Z::operator !=(const Z& rhs) const {
 	return !(*this == rhs);
 }
