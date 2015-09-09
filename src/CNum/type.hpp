@@ -3,17 +3,28 @@
 
 namespace CNum {
 
-class INumericType {
-
-};
+typedef unsigned long Unit;
+typedef bool Sign;
 
 class Z {
+
 public:
 	Z(const long& v);
+
 	bool operator ==(const Z& rhs) const;
 	bool operator !=(const Z& rhs) const;
+
+	bool operator <(const Z&rhs) const;
+	bool operator >(const Z&rhs) const;
+
+	bool operator <=(const Z&rhs) const;
+	bool operator >=(const Z&rhs) const;
+
+	Z operator-() const;
+	Z operator+() const;
 private:
-	long m_v;
+	Unit m_value;
+	Sign m_positive;
 };
 
 }
