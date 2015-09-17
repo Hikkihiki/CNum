@@ -1,4 +1,5 @@
-#include "Counter.hpp"
+#include "../../include/counter.hpp"
+
 #include "gtest/gtest.h"
 using ::testing::Test;
 using ::CNum::Counter;
@@ -53,6 +54,82 @@ TEST(CNumCounter, CopyAssignment) {
 	ASSERT_TRUE(a == 30);
 	a = -20;
 	ASSERT_TRUE(a == -20);
+}
+
+TEST(CNumCounter, PrefixIncrement) {
+	Counter a = 0;
+	unsigned long ul = 0;
+	ASSERT_TRUE(++ul == 1);
+	ASSERT_TRUE(++a == 1);
+	ASSERT_TRUE(++ul == 2);
+	ASSERT_TRUE(++a == 2);
+	a = 0;
+	ul = 0;
+
+	// bottleneck at == comparision;
+	for (unsigned long i = 0; i < 999999; i++) {
+		ASSERT_TRUE(++ul == i + 1);
+		ASSERT_TRUE(++a == i + 1);
+	}
+}
+
+TEST(CNumCounter, PostfixIncrement) {
+	Counter a = 0;
+	unsigned long ul = 0;
+
+	ASSERT_TRUE(ul++ == 0);
+	ASSERT_TRUE(a++ == 0);
+	ASSERT_TRUE(ul++ == 1);
+	ASSERT_TRUE(a++ == 1);
+	ASSERT_TRUE(ul == 2);
+	ASSERT_TRUE(a == 2);
+	a = 999999;
+	ul = 999999;
+	// bottleneck at == comparision;
+	for (unsigned long i = 999999; i < 2 * 999999; i++) {
+		ASSERT_TRUE(ul++ == i);
+		ASSERT_TRUE(a++ == i);
+	}
+}
+
+TEST(CNumCounter, PrefixDecrement) {
+	{
+		Counter a = 1;
+		unsigned long ul = 1;
+		ASSERT_TRUE(--ul == 0);
+		ASSERT_TRUE(--a == 0);
+		ASSERT_TRUE(--ul == -1UL);
+		ASSERT_DEATH(--a, "");
+	}
+	{
+		Counter a = 999999;
+		unsigned long ul = 999999;
+		// bottleneck at == comparision;
+		for (unsigned long i = 999999; i > 0; --i) {
+			ASSERT_TRUE(--ul == i - 1);
+			ASSERT_TRUE(--a == i - 1);
+		}
+	}
+}
+
+TEST(CNumCounter, PostfixDecrement) {
+	{
+		Counter a = 1;
+		unsigned long ul = 1;
+		ASSERT_TRUE(ul-- == 1);
+		ASSERT_TRUE(a-- == 1);
+		ASSERT_TRUE(ul-- == 0);
+		ASSERT_DEATH(a--, "");
+	}
+	{
+		Counter a = 2 * 999999;
+		Counter ul = 2 * 999999;
+		// bottleneck at == comparision;
+		for (unsigned long i = 2 * 999999; i > 999999; --i) {
+			ASSERT_TRUE(ul-- == i);
+			ASSERT_TRUE(a-- == i);
+		}
+	}
 }
 
 /*

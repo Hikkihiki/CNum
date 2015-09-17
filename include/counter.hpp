@@ -1,7 +1,6 @@
 #ifndef INCLUDE_COUNTER_HPP_
 #define INCLUDE_COUNTER_HPP_
 
-#include <vector>
 #include <memory>
 
 namespace CNum {
@@ -13,12 +12,28 @@ public:
 
 	Counter();
 	Counter(const UL& v);
-	Counter(const Counter& c); // copy constructor
 
-	Counter& operator =(const Counter& c); // copy assignment
+	// copy constructor
+	Counter(const Counter& c);
 
-	bool operator ==(const Counter& c) const;
-	Counter& operator <<(const Counter& c);
+	// copy assignment
+	Counter& operator =(const Counter& rhs);
+
+	//explicit operator UL() const;
+
+	bool operator ==(const Counter& rhs) const;
+
+	// prefix
+	Counter& operator ++();
+	Counter& operator --();
+
+	// postfix
+	Counter operator ++(int);
+	Counter operator --(int);
+
+
+	Counter& operator +=(const Counter& rhs);
+	Counter& operator <<(const Counter& rhs);
 
 private:
 	typedef unsigned char byte;
@@ -26,11 +41,13 @@ private:
 	typedef byte_size byte_pos;
 
 	void zero(byte_size s);
-	//void resize(byte_size s);
+	void resize(byte_size s);
 
 	byte_size m_size;
 	std::unique_ptr<byte[]> m_ptr;
 };
+
+Counter operator+(Counter lhs, Counter const& rhs);
 
 /*
  class N {
