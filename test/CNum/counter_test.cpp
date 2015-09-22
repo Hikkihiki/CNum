@@ -132,6 +132,36 @@ TEST(CNumCounter, PostfixDecrement) {
 	}
 }
 
+TEST(CNumCounter, AdditionAssignment) {
+	{
+		Counter a = 0;
+		ASSERT_TRUE((a += 0) == 0);
+		ASSERT_TRUE((a += 13) == 13);
+		ASSERT_TRUE((a += 999999999) == 999999999 + 13);
+
+	}
+	{
+		Counter a = 0;
+		Counter b = a;
+		for (long i = 0; i < 1000000LL; ++i) {
+			ASSERT_TRUE((a += i) == (b + i));
+			b = a;
+		}
+		ASSERT_TRUE(a == ((1000000L - 1) * 1000000L / 2));
+	}
+}
+
+TEST(CNumCounter, Addition) {
+	Counter a = 0;
+	ASSERT_TRUE(a + 0 == 0);
+	ASSERT_TRUE(a + 1 == 1);
+	ASSERT_TRUE((a = a + 987654321LL) == 987654321LL);
+
+	Counter b = 1234567890LL;
+	ASSERT_TRUE(a + b == 987654321LL + 1234567890LL);
+	ASSERT_TRUE(b + b + b == 3 * 1234567890LL);
+}
+
 /*
  TEST(CNumZ, Equals) {
  Z a(10L);

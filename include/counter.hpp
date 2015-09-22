@@ -31,6 +31,9 @@ public:
 	Counter operator ++(int);
 	Counter operator --(int);
 
+	// prefix
+	Counter& operator -() = delete;
+	Counter& operator +();
 
 	Counter& operator +=(const Counter& rhs);
 	Counter& operator <<(const Counter& rhs);
@@ -42,6 +45,9 @@ private:
 
 	void zero(byte_size s);
 	void resize(byte_size s);
+	void expand();
+
+	void addOne(byte_pos i);
 
 	byte_size m_size;
 	std::unique_ptr<byte[]> m_ptr;

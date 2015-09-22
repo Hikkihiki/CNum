@@ -67,15 +67,7 @@ bool CNum::Counter::operator ==(const Counter& rhs) const {
 }
 
 CNum::Counter& CNum::Counter::operator ++() {
-	byte_pos i = 0;
-	while (m_ptr[i] == 0xFF) {
-		m_ptr[i]++;
-		if (i == m_size - 1) {
-			resize(m_size * SIZE_EXPAND_FACTOR);
-		}
-		++i;
-	}
-	++m_ptr[i];
+	addOne(0);
 	return *this;
 }
 
@@ -83,7 +75,7 @@ CNum::Counter& CNum::Counter::operator --() {
 	byte_pos i = 0;
 	while (m_ptr[i] == 0) {
 		assert(i != m_size - 1);
-		m_ptr[i]--;
+		--m_ptr[i];
 		++i;
 	}
 	--m_ptr[i];
@@ -103,8 +95,23 @@ CNum::Counter CNum::Counter::operator --(int) {
 }
 
 CNum::Counter& CNum::Counter::operator +=(const Counter& rhs) {
-	byte carry = 0;
+	bool carry = 0;
 	byte_pos i = 0;
+	for (; i < rhs.m_size; i++) {
+		if (m_size < i) {
+			expand();
+		}
+		unsigned long sum = m_ptr[i] + rhs.m_ptr[i] + (carry ? 1 : 0);
+		m_ptr[i] = sum;
+		carry = (sum >> 8) > 0;
+	}
+	if (carry) {
+		addOne(i);
+	}
+	return *this;
+}
+
+CNum::Counter& CNum::Counter::operator +() {
 	return *this;
 }
 
@@ -140,4 +147,19 @@ void CNum::Counter::zero(byte_size s) {
 
 CNum::Counter CNum::operator +(Counter lhs, const Counter& rhs) {
 	return lhs += rhs;
+}
+
+inline void CNum::Counter::expand() {
+	resize(m_size * SIZE_EXPAND_FACTOR);
+}
+
+void CNum::Counter::addOne(byte_pos i) {
+	while (m_ptr[i] == 0xFF) {
+		++m_ptr[i];
+		if (i == m_size - 1) {
+			expand();
+		}
+		++i;
+	}
+	++m_ptr[i];
 }
