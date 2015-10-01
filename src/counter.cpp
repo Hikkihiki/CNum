@@ -26,6 +26,34 @@ CNum::Counter::Counter(const Counter& c) :
 	*this = c;
 }
 
+CNum::Counter::Counter(const std::string s) :
+	m_size(0), m_ptr(nullptr) {	
+	/*
+	auto rItr = s.rbegin();
+	for (; rItr != s.rend(); ++rItr) {
+		char c = *rItr;
+		if (!('0' <= c && c <= '1')) {
+			break;
+		}
+	}
+	byte_size size = rItr - s.rbegin();
+	zero(size/8+1);
+	for (; rItr != s.rbegin(); --rItr) {
+		*this <<= 1ULL;
+		*this += *rItr - '0';
+	}
+	byte b = 0;
+	byte_pos bitPos = 0;
+	byte_pos bytePos = 0;
+	for (auto itr = s.rbegin(); itr != s.rend(); ++itr) {
+		b |= ( == '0' ? 0 : 1) << bitPos++;
+		if (bitPos >= 8) {
+			[]
+		}
+	}
+	*/
+}
+
 CNum::Counter::Counter(const UL & v) :
 		m_size(0), m_ptr(nullptr) {
 	zero(sizeof(UL));
@@ -123,13 +151,6 @@ CNum::Counter& CNum::Counter::operator +() {
 	return *this;
 }
 
-/*
- CNum::Counter::operator CNum::Counter::UL() const {
- UL value;
- return value;
- }
- */
-
 void CNum::Counter::resize(byte_size s) {
 	if (!(m_size < s || (m_size >= s * SIZE_SHRINK_FACTOR))) {
 		return;
@@ -145,12 +166,11 @@ void CNum::Counter::resize(byte_size s) {
 }
 
 void CNum::Counter::zero(byte_size s) {
-	if (s == m_size) {
-		std::fill_n(m_ptr.get(), m_size, 0);
-	} else {
+	if (s != m_size) {
 		m_size = s;
 		m_ptr.reset(new byte[m_size]());
 	}
+	std::fill_n(m_ptr.get(), m_size, 0);
 }
 
 CNum::Counter CNum::operator +(Counter lhs, const Counter& rhs) {
@@ -174,9 +194,10 @@ void CNum::Counter::addOne(byte_pos i) {
 
 unsigned long long CNum::Counter::ull() {
 	unsigned long long ul = 0;
-	for (byte_pos i = std::min(sizeof(ul), m_size); i != 0 ; --i) {
+	byte_size size = std::min(sizeof(ul), m_size);
+	for (byte_pos i = 0; i < size ; ++i) {
 		ul <<= 8;
-		ul += m_ptr[i];
+		ul += m_ptr[size-i-1];
 	}
 	return ul;
 }

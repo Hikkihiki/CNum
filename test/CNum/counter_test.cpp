@@ -11,6 +11,13 @@ TEST(CNumCounter, DefaultConstructor) {
 	}
 }
 
+TEST(CNumCounter, ULLConversion) {
+	{
+		Counter a(0);
+		ASSERT_EQ(0, a.ull());
+	}
+}
+
 TEST(CNumCounter, ExpicitConstructor) {
 	{
 		Counter a(1);

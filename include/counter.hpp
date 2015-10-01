@@ -2,6 +2,7 @@
 #define INCLUDE_COUNTER_HPP_
 
 #include <memory>
+#include <string>
 
 namespace CNum {
 
@@ -11,6 +12,7 @@ public:
 	typedef unsigned long UL;
 
 	Counter();
+	Counter(const std::string s);
 	Counter(const UL& v);
 
 	// copy constructor
@@ -37,6 +39,7 @@ public:
 
 	Counter& operator +=(const Counter& rhs);
 	Counter& operator <<(const Counter& rhs);
+	Counter& operator <<=(const Counter& rhs);
 
 	// Explicit Conversion
 	unsigned long long ull();
