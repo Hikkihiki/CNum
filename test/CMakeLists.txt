@@ -7,4 +7,5 @@ include_directories("${GTEST_DIR}/include" "${PROJECT_SOURCE_DIR}/src" "${PROJEC
 
 add_executable(CNumTest cnum_test.cpp CNum/type_test.cpp CNum/counter_test.cpp)
 target_link_libraries(CNumTest gtest cnum)
+set_property(TARGET CNumTest PROPERTY CXX_STANDARD 11)
 

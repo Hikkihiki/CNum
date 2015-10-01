@@ -1,6 +1,7 @@
 #include "../include/counter.hpp"
 
 #include <algorithm>
+#include <memory>
 #include <cassert>
 
 #define SIZE_SHRINK_FACTOR (16)
@@ -44,7 +45,7 @@ CNum::Counter& CNum::Counter::operator =(const Counter& rhs) {
 	return *this;
 }
 
-CNum::Counter& CNum::Counter::operator <<(const Counter& rhs) {
+CNum::Counter& CNum::Counter::operator <<(const Counter&) {
 	return *this;
 }
 
@@ -102,7 +103,7 @@ CNum::Counter& CNum::Counter::operator +=(const Counter& rhs) {
 			expand();
 		}
 		unsigned long sum = m_ptr[i] + rhs.m_ptr[i] + (carry ? 1 : 0);
-		m_ptr[i] = sum;
+		m_ptr[i] = (Counter::byte) sum;
 		carry = (sum >> 8) > 0;
 	}
 	if (carry) {
