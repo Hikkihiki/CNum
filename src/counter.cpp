@@ -1,7 +1,6 @@
 #include "../include/counter.hpp"
 
 #include <algorithm>
-#include <memory>
 #include <cassert>
 
 #define SIZE_SHRINK_FACTOR (16)
@@ -49,6 +48,14 @@ CNum::Counter& CNum::Counter::operator <<(const Counter&) {
 	return *this;
 }
 
+CNum::Counter::byte_pos_diff CNum::Counter::diff(byte_pos i, byte_pos j) {
+	bool i_larger = i > j;
+	byte_size abs_diff = i_larger ? i - j : j-i;
+	assert(abs_diff <= INT64_MAX);
+	byte_pos_diff diff = static_cast<byte_pos_diff>(abs_diff);
+	return i_larger ? diff : -diff;
+}
+
 bool CNum::Counter::operator ==(const Counter& rhs) const {
 	const Counter* large = this;
 	const Counter* small = &rhs;
@@ -62,7 +69,7 @@ bool CNum::Counter::operator ==(const Counter& rhs) const {
 	}
 	if (std::count(large->m_ptr.get() + small->m_size,
 			large->m_ptr.get() + large->m_size, 0)
-			== (large->m_size - small->m_size))
+			== diff(large->m_size, small->m_size))
 		return true;
 	return false;
 }
@@ -163,4 +170,13 @@ void CNum::Counter::addOne(byte_pos i) {
 		++i;
 	}
 	++m_ptr[i];
+}
+
+unsigned long long CNum::Counter::ull() {
+	unsigned long long ul = 0;
+	for (byte_pos i = std::min(sizeof(ul), m_size); i != 0 ; --i) {
+		ul <<= 8;
+		ul += m_ptr[i];
+	}
+	return ul;
 }

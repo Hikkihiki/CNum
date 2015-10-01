@@ -38,16 +38,22 @@ public:
 	Counter& operator +=(const Counter& rhs);
 	Counter& operator <<(const Counter& rhs);
 
+	// Explicit Conversion
+	unsigned long long ull();
+
 private:
 	typedef unsigned char byte;
-	typedef unsigned long byte_size;
+	typedef std::size_t byte_size;	
 	typedef byte_size byte_pos;
+	typedef std::ptrdiff_t byte_pos_diff;
 
 	void zero(byte_size s);
 	void resize(byte_size s);
 	void expand();
 
 	void addOne(byte_pos i);
+
+	static byte_pos_diff diff(byte_pos i, byte_pos j);
 
 	byte_size m_size;
 	std::unique_ptr<byte[]> m_ptr;
