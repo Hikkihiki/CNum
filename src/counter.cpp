@@ -7,6 +7,16 @@ void CNum::add(Unit& unit1, const Unit& unit2, Unit& carry) {
   assert(carry == 0 || carry == 1);
   carry = (unit1 += carry) < carry;
   carry += (unit1 += unit2) < unit2;
+  assert(carry == 0 || carry == 1);
+}
+
+void CNum::subtract(Unit& unit1, const Unit& unit2, Unit& carry) {
+  assert(carry == 0 || carry == 1);
+  Unit u = unit1;
+  carry = (unit1 -= carry) > u;
+  u = unit1;
+  carry += (unit1 -= unit2) > u;
+  assert(carry == 0 || carry == 1);
 }
 
 void CNum::left_shift(Unit& unit, const Unit& shift, Unit& filler) {
@@ -98,8 +108,7 @@ CNum::Counter& CNum::Counter::operator+=(const Counter& rhs) {
   assert(rhs.isNormalized());
 
   Unit carry = 0;
-  Index pos = 0;
-  for (; carry || pos < rhs.value.size(); ++pos) {
+  for (Index pos = 0; carry || pos < rhs.value.size(); ++pos) {
     if (pos >= value.size()) {
       value.push_back(0);
     }
@@ -110,8 +119,26 @@ CNum::Counter& CNum::Counter::operator+=(const Counter& rhs) {
   return *this;
 }
 
+CNum::Counter& CNum::Counter::operator-=(const Counter& rhs) {
+  assert(isNormalized());
+  assert(rhs.isNormalized());
+  assert(rhs <= *this);
+
+  Unit carry = 0;
+  for (Index pos = 0; carry || pos < rhs.value.size(); ++pos) {
+    Unit r = pos >= rhs.value.size() ? 0 : rhs.value[pos];
+    CNum::subtract(value[pos], r, carry);
+  }
+  assert(isNormalized());
+  return *this;
+}
+
 CNum::Counter CNum::operator+(Counter lhs, const Counter& rhs) {
   return lhs += rhs;
+}
+
+CNum::Counter CNum::operator-(Counter lhs, const Counter& rhs) {
+  return lhs -= rhs;
 }
 
 CNum::Counter& CNum::Counter::operator++() {

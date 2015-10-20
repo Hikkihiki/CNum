@@ -29,6 +29,32 @@ TEST_P(AddTest, SanityTest) {
   ASSERT_EQ(exp_carry, carry);
 };
 
+class SubtractTest : public ::testing::TestWithParam<
+                         std::tuple<Unit, Unit, Unit, Unit, Unit, Unit>> {};
+INSTANTIATE_TEST_CASE_P(
+    CNumUnit, SubtractTest,
+    ::testing::Values(std::make_tuple(0, 0, 0, 0, 0, 0),
+                      std::make_tuple(2, 1, 0, 1, 1, 0),
+                      std::make_tuple(3, 4, 0, CNum::UNIT_MAX, 4, 1),
+                      std::make_tuple(0, 0, 1, CNum::UNIT_MAX, 0, 1),
+                      std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, 0, 0,
+                                      CNum::UNIT_MAX, 0),
+                      std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, 1,
+                                      CNum::UNIT_MAX, CNum::UNIT_MAX, 1),
+                      std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 1,
+                                      CNum::UNIT_MAX - CNum::UNIT_MAX / 2 - 1,
+                                      CNum::UNIT_MAX / 2, 0),
+                      std::make_tuple(CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
+                                      CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 1)));
+TEST_P(SubtractTest, SanityTest) {
+  Unit a, b, carry, exp_a, exp_b, exp_carry;
+  std::tie(a, b, carry, exp_a, exp_b, exp_carry) = GetParam();
+  CNum::subtract(a, b, carry);
+  ASSERT_EQ(exp_a, a);
+  ASSERT_EQ(exp_b, b);
+  ASSERT_EQ(exp_carry, carry);
+};
+
 class LeftShiftTest : public ::testing::TestWithParam<
                           std::tuple<Unit, Unit, Unit, Unit, Unit, Unit>> {};
 INSTANTIATE_TEST_CASE_P(
@@ -230,10 +256,30 @@ TEST(CNumCounter, AdditionAssignment) {
     ASSERT_EQ(999999999 + 13, a += 999999999);
   }
   {
-    Counter a = 0;
-    Counter b = a;
+    Counter b = 0;
+    Counter a = b;
     for (long i = 0; i < 1000000LL; ++i) {
       ASSERT_EQ(b + i, a += i);
+      b = a;
+    }
+  }
+}
+
+TEST(CNumCounter, SubtractionAssignment) {
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a -= 0);
+    ASSERT_DEATH(a -= 1, "");
+  }
+  {
+    Counter a = 99999999ULL;
+    ASSERT_EQ(99999999ULL - 1234567, a -= 1234567);
+  }
+  {
+    Counter b = 99999999ULL;
+    Counter a = b;
+    for (long i = 0; i < 1000LL; ++i) {
+      ASSERT_EQ(b - i, a -= i);
       b = a;
     }
   }

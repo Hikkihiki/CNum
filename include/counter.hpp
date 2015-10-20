@@ -18,8 +18,11 @@ typedef uint64_t Size;
 const Unit UNIT_MAX = -1;
 // const Unit UNIT_MIN = 0;
 
-// u1 = u1+u2+carry, carry = new carry
+// unit1 = unit1 + unit2 + carry, carry = new carry
 void add(Unit& unit1, const Unit& unit2, Unit& carry);
+
+// unit1 = unit1 - unit2 - carry, carry = new carry
+void subtract(Unit& unit1, const Unit& unit2, Unit& carry);
 
 // unit = (unit << shift) | filler, filler = dropped bits
 void left_shift(Unit& unit, const Unit& shift, Unit& filler);
@@ -60,6 +63,7 @@ class Counter {
   Counter operator+() const;
 
   Counter& operator+=(const Counter& rhs);
+  Counter& operator-=(const Counter& rhs);
 
   // Counter& operator <<(const Counter& rhs);
   // Counter& operator<<=(const Counter& rhs);
@@ -94,6 +98,7 @@ class Counter {
 };
 
 Counter operator+(Counter lhs, Counter const& rhs);
+Counter operator-(Counter lhs, Counter const& rhs);
 bool operator==(const Counter&, const Counter&);
 bool operator!=(const Counter&, const Counter&);
 bool operator<(const Counter&, const Counter&);
