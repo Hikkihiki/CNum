@@ -3,98 +3,109 @@
 #include <algorithm>
 #include <cassert>
 
-void CNum::add(Unit &u1, const Unit &u2, Unit &carry) {
-	assert(carry == 0 || carry == 1);
-	carry = (u1 += carry) < carry;
-	carry += (u1 += u2) < u2;
+void CNum::add(Unit& unit1, const Unit& unit2, Unit& carry) {
+  assert(carry == 0 || carry == 1);
+  carry = (unit1 += carry) < carry;
+  carry += (unit1 += unit2) < unit2;
 }
 
-CNum::Counter::Counter(unsigned long long v) :
-		value() {
-	assert(sizeof(unsigned long long) <= sizeof(Unit));
-	if (v) {
-		value.push_back(v);
-	}
-	assert(isNormalized());
+void CNum::left_shift(Unit& unit, const Unit& shift, Unit& filler) {
+  assert(0 <= shift && shift < sizeof(Unit) * 8);
+  Unit newFiller = unit >> (sizeof(Unit) * 8 - shift);
+  unit <<= shift;
+  unit |= filler;
+  filler = newFiller;
 }
 
-CNum::Counter::Counter() :
-		Counter(0) {
+CNum::Counter::Counter(unsigned long long v) : value() {
+  assert(sizeof(unsigned long long) <= sizeof(Unit));
+  if (v) {
+    value.push_back(v);
+  }
+  assert(isNormalized());
 }
 
-CNum::Counter::Counter(const Counter& c) :
-		Counter(0) {
-	*this = c;
-}
+CNum::Counter::Counter() : Counter(0) {}
+
+CNum::Counter::Counter(const Counter& c) : Counter(0) { *this = c; }
 
 void CNum::Counter::setZero() {
-	value.clear();
-	assert(isNormalized());
+  value.clear();
+  assert(isNormalized());
 }
+
 bool CNum::Counter::isNormalized() const {
-	return value.size() ? (value.back() != 0) : true;
+  return value.size() ? (value.back() != 0) : true;
 }
 
 void CNum::Counter::normalize() {
-	// trim leading zero
-	while (!value.back()) {
-		value.pop_back();
-	}
-	assert(isNormalized());
+  // trim leading zero
+  while (!value.back()) {
+    value.pop_back();
+  }
+  assert(isNormalized());
 }
 
-bool CNum::operator ==(const Counter& lhs, const Counter& rhs) {
-	assert(lhs.isNormalized());
-	assert(rhs.isNormalized());
-	return lhs.value == rhs.value;
+bool CNum::operator==(const Counter& lhs, const Counter& rhs) {
+  assert(lhs.isNormalized());
+  assert(rhs.isNormalized());
+  return lhs.value == rhs.value;
 }
 
 unsigned long long CNum::Counter::ull() const {
-	assert(sizeof(unsigned long long) <= sizeof(Unit));
-	return value.size() ? value.front() : 0;
+  assert(sizeof(unsigned long long) <= sizeof(Unit));
+  return value.size() ? value.front() : 0;
 }
 
-CNum::Counter& CNum::Counter::operator =(const Counter& rhs) {
-	value = rhs.value;
-	return *this;
+CNum::Unit CNum::Counter::unit() const { return value.size() ? value[0] : 0; }
+
+CNum::Counter& CNum::Counter::operator=(const Counter& rhs) {
+  value = rhs.value;
+  return *this;
 }
 
-CNum::Counter& CNum::Counter::operator +=(const Counter& rhs) {
-	assert(isNormalized());
-	assert(rhs.isNormalized());
+CNum::Counter& CNum::Counter::operator+=(const Counter& rhs) {
+  assert(isNormalized());
+  assert(rhs.isNormalized());
 
-	Unit carry = 0;
-	UnitPos pos = 0;
-	for (; carry || pos < rhs.value.size(); ++pos) {
-		if (pos >= value.size()) {
-			value.push_back(0);
-		}
-		Unit r = pos >= rhs.value.size() ? 0 : rhs.value[pos];
-		CNum::add(value[pos], r, carry);
-	}
-	assert(isNormalized());
-	return *this;
+  Unit carry = 0;
+  UnitPos pos = 0;
+  for (; carry || pos < rhs.value.size(); ++pos) {
+    if (pos >= value.size()) {
+      value.push_back(0);
+    }
+    Unit r = pos >= rhs.value.size() ? 0 : rhs.value[pos];
+    CNum::add(value[pos], r, carry);
+  }
+  assert(isNormalized());
+  return *this;
 }
 
-CNum::Counter CNum::operator +(Counter lhs, const Counter& rhs) {
-	return lhs += rhs;
+CNum::Counter CNum::operator+(Counter lhs, const Counter& rhs) {
+  return lhs += rhs;
 }
 
-CNum::Counter& CNum::Counter::operator ++() {
-	*this += 1;
-	return *this;
+CNum::Counter& CNum::Counter::operator++() {
+  *this += 1;
+  return *this;
 }
 
-CNum::Counter CNum::Counter::operator ++(int) {
-	Counter c(*this);
-	++(*this);
-	return c;
+CNum::Counter CNum::Counter::operator++(int) {
+  Counter c(*this);
+  ++(*this);
+  return c;
 }
 
-CNum::Counter CNum::Counter::operator +() const {
-	return *this;
+CNum::Counter CNum::Counter::operator+() const { return *this; }
+
+/*
+CNum::Counter& CNum::Counter::operator<<=(const Counter& rhs) {
+  Unit shift = rhs.unit();
+  return rhs;
 }
-//CNum::Counter::Counter(const std::string s) :
+*/
+
+// CNum::Counter::Counter(const std::string s) :
 //		m_size(0), m_ptr(nullptr) {
 /*
  auto rItr = s.rbegin();

@@ -1,36 +1,76 @@
 #include "../../include/counter.hpp"
 
+#include <tuple>
+#include <vector>
 #include "gtest/gtest.h"
 using ::testing::Test;
 using ::CNum::Counter;
 using ::CNum::Unit;
 
-typedef unsigned long long ull;
-
-typedef struct _Params {
-	ull a, b, carry, e_a, e_b, e_carry;
-} Params;
-class CNumUnit: public ::testing::TestWithParam<Params> {
+class AddTest : public ::testing::TestWithParam<
+                    std::tuple<Unit, Unit, Unit, Unit, Unit, Unit>> {};
+INSTANTIATE_TEST_CASE_P(
+    CNumUnit, AddTest,
+    ::testing::Values(std::make_tuple(0, 0, 0, 0, 0, 0),
+                      std::make_tuple(0, 1, 0, 1, 1, 0),
+                      std::make_tuple(2, 1, 0, 3, 1, 0),
+                      std::make_tuple(CNum::UNIT_MAX, 1, 0, 0, 1, 1),
+                      std::make_tuple(CNum::UNIT_MAX, 1, 1, 1, 1, 1),
+                      std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, 1,
+                                      CNum::UNIT_MAX, CNum::UNIT_MAX, 1),
+                      std::make_tuple(CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
+                                      CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0)));
+TEST_P(AddTest, SanityTest) {
+  Unit a, b, carry, exp_a, exp_b, exp_carry;
+  std::tie(a, b, carry, exp_a, exp_b, exp_carry) = GetParam();
+  CNum::add(a, b, carry);
+  ASSERT_EQ(exp_a, a);
+  ASSERT_EQ(exp_b, b);
+  ASSERT_EQ(exp_carry, carry);
 };
-TEST_P(CNumUnit, Add) {
-	Params param = GetParam();
-	Unit a = param.a;
-	Unit b = param.b;
-	Unit carry = param.carry;
-	CNum::add(a, b, carry);
-	ASSERT_EQ(param.e_a, a);
-	ASSERT_EQ(param.e_b, b);
-	ASSERT_EQ(param.e_carry, carry);
-}
 
-INSTANTIATE_TEST_CASE_P(CNum, CNumUnit,
-		::testing::Values(Params( { 0, 0, 0, 0, 0, 0 }), Params( { 0, 1, 0, 1,
-				1, 0 }), Params( { 2, 1, 0, 3, 1, 0 }), Params( {
-				CNum::UNIT_MAX, 1, 0, 0, 1, 1 }), Params( { CNum::UNIT_MAX, 1,
-				1, 1, 1, 1 }), Params( { CNum::UNIT_MAX, CNum::UNIT_MAX, 1,
-				CNum::UNIT_MAX, CNum::UNIT_MAX, 1 }),
-				Params( { CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
-						CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0 })));
+class LeftShiftTest : public ::testing::TestWithParam<
+                          std::tuple<Unit, Unit, Unit, Unit, Unit, Unit>> {};
+INSTANTIATE_TEST_CASE_P(
+    CNumUnit, LeftShiftTest,
+    ::testing::Values(
+        std::make_tuple(0, 0, 0, 0, 0, 0), std::make_tuple(1, 1, 0, 2, 1, 0),
+        std::make_tuple(3, 2, 0, 12, 2, 0),
+        std::make_tuple(0x0F, 4, 0, 0xF0, 4, 0),
+        std::make_tuple(0x7F, 7, 1, 0x3F81, 7, 0),
+        std::make_tuple(0xFA00000000000000, 3, 1, 0xD000000000000001, 3, 7),
+        std::make_tuple(CNum::UNIT_MAX, 1, 1, CNum::UNIT_MAX, 1, 1),
+        std::make_tuple(CNum::UNIT_MAX, sizeof(Unit) * 8 - 1, 0,
+                        CNum::UNIT_MAX << (sizeof(Unit) * 8 - 1),
+                        sizeof(Unit) * 8 - 1, CNum::UNIT_MAX >> 1),
+        std::make_tuple(CNum::UNIT_MAX, 15, 0x7FFF, CNum::UNIT_MAX, 15, 0x7FFF),
+        std::make_tuple(CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
+                        CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0)));
+TEST_P(LeftShiftTest, SanityTest) {
+  Unit unit, shift, filler, exp_unit, exp_shift, exp_filler;
+  std::tie(unit, shift, filler, exp_unit, exp_shift, exp_filler) = GetParam();
+  if (shift >= sizeof(Unit) * 8) {
+    ASSERT_DEATH(CNum::left_shift(unit, shift, filler), "");
+  } else {
+    CNum::left_shift(unit, shift, filler);
+    ASSERT_EQ(exp_unit, unit);
+    ASSERT_EQ(exp_shift, shift);
+    ASSERT_EQ(exp_filler, filler);
+  }
+};
+
+/*
+TEST_P(CNumUnit, LeftShift) {
+  Params param = GetParam();
+  Unit a = param.a;
+  Unit b = param.b;
+  Unit carry = param.carry;
+  CNum::add(a, b, carry);
+  ASSERT_EQ(param.e_a, a);
+  ASSERT_EQ(param.e_b, b);
+  ASSERT_EQ(param.e_carry, carry);
+}
+*/
 /*
  TEST(CNumUnit, Add) {
  {
@@ -88,127 +128,126 @@ INSTANTIATE_TEST_CASE_P(CNum, CNumUnit,
  */
 
 TEST(CNumCounter, DefaultConstructor) {
-	{
-		Counter a;
-		ASSERT_EQ(0, a);
-	}
+  {
+    Counter a;
+    ASSERT_EQ(0, a);
+  }
 }
 
 TEST(CNumCounter, ExpicitConstructor) {
-	{
-		Counter a(1);
-		ASSERT_EQ(1, a);
-	}
-	{
-		Counter a(0);
-		ASSERT_EQ(0, a);
-	}
-	{
-		Counter a(-1);
-		ASSERT_EQ(-1, a);
-	}
-	{
-		Counter a(192837465L);
-		ASSERT_EQ(192837465L, a);
-	}
+  {
+    Counter a(1);
+    ASSERT_EQ(1, a);
+  }
+  {
+    Counter a(0);
+    ASSERT_EQ(0, a);
+  }
+  {
+    Counter a(-1);
+    ASSERT_EQ(-1, a);
+  }
+  {
+    Counter a(192837465L);
+    ASSERT_EQ(192837465L, a);
+  }
 }
 
 TEST(CNumCounter, CopyConstructor) {
-	{
-		Counter a = Counter(10);
-		ASSERT_EQ(10, a);
-	}
-	{
-		Counter a = -10;
-		ASSERT_EQ(-10, a);
-	}
-	{
-		Counter a = -0;
-		ASSERT_EQ(0, a);
-	}
+  {
+    Counter a = Counter(10);
+    ASSERT_EQ(10, a);
+  }
+  {
+    Counter a = -10;
+    ASSERT_EQ(-10, a);
+  }
+  {
+    Counter a = -0;
+    ASSERT_EQ(0, a);
+  }
 }
 
 TEST(CNumCounter, CopyAssignment) {
-	Counter a;
-	ASSERT_EQ(0, a);
-	a = 20;
-	ASSERT_EQ(20, a);
-	a = 30L;
-	ASSERT_EQ(30, a);
-	a = -20;
-	ASSERT_EQ(-20, a);
+  Counter a;
+  ASSERT_EQ(0, a);
+  a = 20;
+  ASSERT_EQ(20, a);
+  a = 30L;
+  ASSERT_EQ(30, a);
+  a = -20;
+  ASSERT_EQ(-20, a);
 }
 
 TEST(CNumCounter, ULLConversion) {
-	{
-		Counter a(0);
-		ASSERT_EQ(0, a.ull());
-	}
+  {
+    Counter a(0);
+    ASSERT_EQ(0, a.ull());
+  }
 }
 
 TEST(CNumCounter, PrefixIncrement) {
-	Counter a = 0;
-	unsigned long ul = 0;
-	ASSERT_EQ(1, ++ul);
-	ASSERT_EQ(1, ++a);
-	ASSERT_EQ(2, ++ul);
-	ASSERT_EQ(2, ++a);
-	a = 0;
-	ul = 0;
+  Counter a = 0;
+  unsigned long ul = 0;
+  ASSERT_EQ(1, ++ul);
+  ASSERT_EQ(1, ++a);
+  ASSERT_EQ(2, ++ul);
+  ASSERT_EQ(2, ++a);
+  a = 0;
+  ul = 0;
 
-	// bottleneck at == comparision;
-	for (unsigned long i = 0; i < 999999; i++) {
-		ASSERT_EQ(i + 1, ++ul);
-		ASSERT_EQ(i + 1, ++a);
-	}
+  // bottleneck at == comparision;
+  for (unsigned long i = 0; i < 999999; i++) {
+    ASSERT_EQ(i + 1, ++ul);
+    ASSERT_EQ(i + 1, ++a);
+  }
 }
 
 TEST(CNumCounter, PostfixIncrement) {
-	Counter a = 0;
-	unsigned long ul = 0;
+  Counter a = 0;
+  unsigned long ul = 0;
 
-	ASSERT_EQ(0, ul++);
-	ASSERT_EQ(0, a++);
-	ASSERT_EQ(1, ul++);
-	ASSERT_EQ(1, a++);
-	ASSERT_EQ(2, ul);
-	ASSERT_EQ(2, a);
-	a = 999999;
-	ul = 999999;
-	// bottleneck at == comparision;
-	for (unsigned long i = 999999; i < 2 * 999999; i++) {
-		ASSERT_EQ(i, ul++);
-		ASSERT_EQ(i, a++);
-	}
+  ASSERT_EQ(0, ul++);
+  ASSERT_EQ(0, a++);
+  ASSERT_EQ(1, ul++);
+  ASSERT_EQ(1, a++);
+  ASSERT_EQ(2, ul);
+  ASSERT_EQ(2, a);
+  a = 999999;
+  ul = 999999;
+  // bottleneck at == comparision;
+  for (unsigned long i = 999999; i < 2 * 999999; i++) {
+    ASSERT_EQ(i, ul++);
+    ASSERT_EQ(i, a++);
+  }
 }
 
 TEST(CNumCounter, AdditionAssignment) {
-	{
-		Counter a = 0;
-		ASSERT_EQ(0, a += 0);
-		ASSERT_EQ(13, a += 13);
-		ASSERT_EQ(999999999 + 13, a += 999999999);
-
-	}
-	{
-		Counter a = 0;
-		Counter b = a;
-		for (long i = 0; i < 1000000LL; ++i) {
-			ASSERT_EQ(b + i, a += i);
-			b = a;
-		}
-	}
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a += 0);
+    ASSERT_EQ(13, a += 13);
+    ASSERT_EQ(999999999 + 13, a += 999999999);
+  }
+  {
+    Counter a = 0;
+    Counter b = a;
+    for (long i = 0; i < 1000000LL; ++i) {
+      ASSERT_EQ(b + i, a += i);
+      b = a;
+    }
+  }
 }
 
 TEST(CNumCounter, Addition) {
-	Counter a = 0;
-	ASSERT_EQ(0, a + 0);
-	ASSERT_EQ(1, a + 1);
-	ASSERT_EQ(987654321LL, a = a + 987654321LL);
+  Counter a = 0;
+  ASSERT_EQ(0, a + 0);
+  ASSERT_EQ(1, a + 1);
+  ASSERT_EQ(987654321LL, a = a + 987654321LL);
 
-	Counter b = 1234567890LL;
-	ASSERT_EQ(987654321LL + 1234567890LL, a + b);
-	ASSERT_EQ(3 * 1234567890LL, b + b + b);
+  Counter b = 1234567890LL;
+  ASSERT_EQ(987654321LL + 1234567890LL, a + b);
+  ASSERT_EQ(3 * 1234567890LL, b + b + b);
 }
 
 /*
