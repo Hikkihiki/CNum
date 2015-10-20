@@ -250,6 +250,94 @@ TEST(CNumCounter, Addition) {
   ASSERT_EQ(3 * 1234567890LL, b + b + b);
 }
 
+TEST(CNumCounter, Equals) {
+  Counter a(10L);
+  ASSERT_TRUE(a == 10);
+  ASSERT_TRUE(a == 10L);
+  ASSERT_TRUE(10 == a);
+  ASSERT_TRUE(10L == a);
+
+  ASSERT_FALSE(a == 11);
+  ASSERT_FALSE(a == 9L);
+  ASSERT_FALSE(11 == a);
+  ASSERT_FALSE(9L == a);
+
+  ASSERT_TRUE(a == Counter(10));
+  ASSERT_TRUE(Counter(10) == a);
+  ASSERT_FALSE(a == Counter(9));
+  ASSERT_FALSE(Counter(9) == a);
+
+  ASSERT_TRUE(a == a);
+}
+
+TEST(CNumCounter, NotEquals) {
+  Counter a(1);
+  ASSERT_FALSE(a != 1);
+  ASSERT_FALSE(a != 1L);
+  ASSERT_FALSE(1 != a);
+  ASSERT_FALSE(1L != a);
+
+  ASSERT_TRUE(a != 0);
+  ASSERT_TRUE(a != -1L);
+  ASSERT_TRUE(0 != a);
+  ASSERT_TRUE(-1L != a);
+
+  ASSERT_TRUE(a != Counter(2));
+  ASSERT_FALSE(a != Counter(1L));
+
+  ASSERT_FALSE(a != a);
+}
+
+TEST(CNumCounter, LessThan) {
+  Counter a = 1;
+  ASSERT_TRUE(a < 2);
+  ASSERT_FALSE(a < 1L);
+  ASSERT_FALSE(a < 0);
+
+  ASSERT_FALSE(2 < a);
+  ASSERT_FALSE(1L < a);
+  ASSERT_TRUE(0 < a);
+}
+
+TEST(CNumCounter, GreaterThan) {
+  Counter a = 1;
+  ASSERT_FALSE(a > 2);
+  ASSERT_FALSE(a > 1L);
+  ASSERT_TRUE(a > 0);
+
+  ASSERT_TRUE(2 > a);
+  ASSERT_FALSE(1L > a);
+  ASSERT_FALSE(0 > a);
+
+  ASSERT_FALSE(a > a);
+}
+
+TEST(CNumCounter, LessThanEqual) {
+  Counter a = 1;
+  ASSERT_TRUE(a <= 2);
+  ASSERT_TRUE(a <= 1L);
+  ASSERT_FALSE(a <= 0);
+
+  ASSERT_FALSE(2 <= a);
+  ASSERT_TRUE(1L <= a);
+  ASSERT_TRUE(0 <= a);
+
+  ASSERT_TRUE(a <= a);
+}
+
+TEST(CNumCounter, GreaterThanEqual) {
+  Counter a = 1;
+  ASSERT_TRUE(a >= 0L);
+  ASSERT_TRUE(a >= 1);
+  ASSERT_FALSE(a >= Counter(2L));
+
+  ASSERT_FALSE(0L >= a);
+  ASSERT_TRUE(1 >= a);
+  ASSERT_TRUE(Counter(2L) >= a);
+
+  ASSERT_TRUE(a >= a);
+}
+
 /*
  TEST(CNumCounter, PrefixDecrement) {
  {
@@ -289,99 +377,5 @@ TEST(CNumCounter, Addition) {
  ASSERT_TRUE(a-- == i);
  }
  }
- }
- */
-
-/*
- TEST(CNumZ, Equals) {
- Z a(10L);
- ASSERT_TRUE(a == 10);
- ASSERT_TRUE(a == 10L);
-
- ASSERT_FALSE(a == 11);
- ASSERT_FALSE(a == 9L);
-
- ASSERT_TRUE(a == Z(10));
- ASSERT_FALSE(a == Z(9));
-
- ASSERT_TRUE(Z(0) == Z(0));
- ASSERT_TRUE(Z(0) == -Z(0));
- ASSERT_TRUE(Z(0) == -0);
- ASSERT_TRUE(Z(-0) == -Z(0));
- ASSERT_TRUE(Z(-0) == 0);
- }
-
- TEST(CNumZ, NotEquals) {
- Z a(1);
- ASSERT_FALSE(a != 1);
- ASSERT_FALSE(a != 1L);
-
- ASSERT_TRUE(a != 0);
- ASSERT_TRUE(a != -1L);
-
- ASSERT_TRUE(a != Z(2));
- ASSERT_FALSE(a != Z(1L));
- }
-
- TEST(CNumZ, LessThan) {
- Z a = 1;
- ASSERT_TRUE(a < 2);
- ASSERT_FALSE(a < 1L);
- ASSERT_FALSE(a < 0);
- ASSERT_FALSE(a < Z(-1));
-
- a = -2;
- ASSERT_FALSE(a < -3);
- ASSERT_FALSE(a < -2L);
- ASSERT_TRUE(a < -1);
- ASSERT_TRUE(a < Z(0));
-
- ASSERT_FALSE(Z(0) < -Z(0));
- }
-
- TEST(CNumZ, GreaterThan) {
- Z a = 1;
- ASSERT_TRUE(a > -1);
- ASSERT_TRUE(a > 0L);
- ASSERT_FALSE(a > 1);
- ASSERT_FALSE(a > Z(2L));
-
- a = -2;
- ASSERT_TRUE(a > -3);
- ASSERT_FALSE(a > -2L);
- ASSERT_FALSE(a > -1);
- ASSERT_FALSE(a > Z(0));
- }
-
- TEST(CNumZ, LessThanEqual) {
- Z a = 1;
- ASSERT_TRUE(a <= 2);
- ASSERT_TRUE(a <= 1L);
- ASSERT_FALSE(a <= 0);
- ASSERT_FALSE(a <= Z(-1));
-
- a = -2;
- ASSERT_FALSE(a <= -3);
- ASSERT_TRUE(a <= -2L);
- ASSERT_TRUE(a <= -1);
- ASSERT_TRUE(a <= Z(0));
-
- ASSERT_TRUE(Z(0) <= Z(0));
- }
-
- TEST(CNumZ, GreaterThanEqual) {
- Z a = 1;
- ASSERT_TRUE(a >= -1);
- ASSERT_TRUE(a >= 0L);
- ASSERT_TRUE(a >= 1);
- ASSERT_FALSE(a >= Z(2L));
-
- a = -2;
- ASSERT_TRUE(a >= -3);
- ASSERT_TRUE(a >= -2L);
- ASSERT_FALSE(a >= -1);
- ASSERT_FALSE(a >= Z(0));
-
- ASSERT_TRUE(Z(0) <= Z(0));
  }
  */

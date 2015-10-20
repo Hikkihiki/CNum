@@ -12,6 +12,8 @@ namespace CNum {
 // A unit is defined to be unsigned primitive type
 // It should have implicit conversion to unsigned long long
 typedef uint64_t Unit;
+typedef int64_t Index;
+typedef uint64_t Size;
 
 const Unit UNIT_MAX = -1;
 // const Unit UNIT_MIN = 0;
@@ -39,6 +41,11 @@ class Counter {
   // == operator is declared as free function so that
   // 1 == Counter(1) is valid expression
   friend bool operator==(const Counter&, const Counter&);
+  friend bool operator!=(const Counter&, const Counter&);
+  friend bool operator<(const Counter&, const Counter&);
+  friend bool operator>(const Counter&, const Counter&);
+  friend bool operator<=(const Counter&, const Counter&);
+  friend bool operator>=(const Counter&, const Counter&);
 
   // prefix
   Counter& operator++();
@@ -65,8 +72,6 @@ class Counter {
   // typedef std::size_t byte_size;
   // typedef byte_size byte_pos;
   // typedef std::ptrdiff_t byte_pos_diff;
-  typedef Unit UnitSize;
-  typedef Unit UnitPos;
 
   void setZero();
   // void resize(byte_size s);
@@ -90,6 +95,11 @@ class Counter {
 
 Counter operator+(Counter lhs, Counter const& rhs);
 bool operator==(const Counter&, const Counter&);
+bool operator!=(const Counter&, const Counter&);
+bool operator<(const Counter&, const Counter&);
+bool operator>(const Counter&, const Counter&);
+bool operator<=(const Counter&, const Counter&);
+bool operator>=(const Counter&, const Counter&);
 }
 
 #endif /* INCLUDE_COUNTER_HPP_ */
