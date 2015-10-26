@@ -49,7 +49,7 @@ INSTANTIATE_TEST_CASE_P(
 TEST_P(SubtractTest, SanityTest) {
   Unit a, b, carry, exp_a, exp_b, exp_carry;
   std::tie(a, b, carry, exp_a, exp_b, exp_carry) = GetParam();
-  CNum::subtract(a, b, carry);
+  CNum::sub(a, b, carry);
   ASSERT_EQ(exp_a, a);
   ASSERT_EQ(exp_b, b);
   ASSERT_EQ(exp_carry, carry);
@@ -71,7 +71,8 @@ INSTANTIATE_TEST_CASE_P(
                         sizeof(Unit) * 8 - 1, CNum::UNIT_MAX >> 1),
         std::make_tuple(CNum::UNIT_MAX, 15, 0x7FFF, CNum::UNIT_MAX, 15, 0x7FFF),
         std::make_tuple(CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
-                        CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0)));
+                        CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0),
+        std::make_tuple(0xABCD, 12, 1, 0xABCD001, 12, 0)));
 TEST_P(LeftShiftTest, SanityTest) {
   Unit unit, shift, filler, exp_unit, exp_shift, exp_filler;
   std::tie(unit, shift, filler, exp_unit, exp_shift, exp_filler) = GetParam();
@@ -176,6 +177,33 @@ TEST(CNumCounter, ExpicitConstructor) {
   {
     Counter a(192837465L);
     ASSERT_EQ(192837465L, a);
+  }
+}
+
+TEST(CNumCounter, HexStringConstructor) {
+  {
+    Counter a("0x");
+    ASSERT_EQ(0, a);
+  }
+  {
+    Counter a("0x0");
+    ASSERT_EQ(0, a);
+  }
+  {
+    Counter a("0x1");
+    ASSERT_EQ(1, a);
+  }
+  {
+    Counter a("0xABCD");
+    ASSERT_EQ(0xABCD, a);
+  }
+  {
+    Counter a("0x0123");
+    ASSERT_EQ(0x123, a);
+  }
+  {
+    Counter a("0x11223344556677881122334455667788");
+    ASSERT_EQ(0x1122334455667788, a.ull());
   }
 }
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <iostream>
 
 namespace CNum {
 
@@ -22,7 +23,12 @@ const Unit UNIT_MAX = -1;
 void add(Unit& unit1, const Unit& unit2, Unit& carry);
 
 // unit1 = unit1 - unit2 - carry, carry = new carry
-void subtract(Unit& unit1, const Unit& unit2, Unit& carry);
+void sub(Unit& unit1, const Unit& unit2, Unit& carry);
+
+/*
+// unit1 = unit1 * unit2 + carry, carry = new carry
+void mul(Unit& unit1, const Unit& unit2, Unit& carry);
+*/
 
 // unit = (unit << shift) | filler, filler = dropped bits
 void left_shift(Unit& unit, const Unit& shift, Unit& filler);
@@ -38,6 +44,8 @@ class Counter {
   // copy constructor
   Counter(const Counter& c);
 
+  Counter(const std::string& s);
+
   // copy assignment
   Counter& operator=(const Counter& rhs);
 
@@ -49,6 +57,8 @@ class Counter {
   friend bool operator>(const Counter&, const Counter&);
   friend bool operator<=(const Counter&, const Counter&);
   friend bool operator>=(const Counter&, const Counter&);
+
+  friend std::ostream& operator<<(std::ostream&, const Counter&);
 
   // prefix
   Counter& operator++();
@@ -99,12 +109,15 @@ class Counter {
 
 Counter operator+(Counter lhs, Counter const& rhs);
 Counter operator-(Counter lhs, Counter const& rhs);
+
 bool operator==(const Counter&, const Counter&);
 bool operator!=(const Counter&, const Counter&);
 bool operator<(const Counter&, const Counter&);
 bool operator>(const Counter&, const Counter&);
 bool operator<=(const Counter&, const Counter&);
 bool operator>=(const Counter&, const Counter&);
+
+std::ostream& operator<<(std::ostream&, const Counter&);
 }
 
 #endif /* INCLUDE_COUNTER_HPP_ */
