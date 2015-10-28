@@ -4,6 +4,8 @@
 #include <cassert>
 #include <sstream>
 
+const CNum::Unit HEX_CHAR_SIZE = 4;
+
 void CNum::add(Unit &unit1, const Unit &unit2, Unit &carry) {
   carry = (unit1 += carry) < carry;
   carry += (unit1 += unit2) < unit2;
@@ -86,7 +88,7 @@ CNum::Counter::Counter(const std::string &s) : value() {
 
   // rBegin and rEnd is set
   if (base == 16) {
-    const Unit CHAR_SIZE = 4;
+
     // 1 character in hex occupied 4 bits
 
     Index shift = 0;
@@ -104,7 +106,7 @@ CNum::Counter::Counter(const std::string &s) : value() {
         throw;
       }
       unit |= (c << shift);
-      shift = (shift + CHAR_SIZE) % UNIT_BIT_SIZE;
+      shift = (shift + HEX_CHAR_SIZE) % UNIT_BIT_SIZE;
       if (shift == 0) {
         value.push_back(unit);
         unit = 0;
@@ -132,14 +134,12 @@ CNum::Counter::Counter(const std::string &s) : value() {
   assert(isNormalized());
 }
 
-/*
 std::ostream &CNum::operator<<(std::ostream &out, const Counter &rhs) {
   for (Index i = rhs.value.size() - 1; i >= 0; --i) {
     out << rhs.value[i];
   }
   return out;
 }
- */
 
 CNum::Counter::Counter() : Counter(0) {}
 
@@ -207,6 +207,32 @@ unsigned long long CNum::Counter::ull() const {
 CNum::Unit CNum::Counter::unit(Index pos) const {
   assert(0 <= pos && pos < value.size());
   return value[pos];
+}
+
+// Simply use printf?
+std::string CNum::Counter::hex() const {
+  assert(isNormalized());
+  assert(UNIT_BIT_SIZE % HEX_CHAR_SIZE == 0);
+  const Unit CHAR_NUM = UNIT_BIT_SIZE / HEX_CHAR_SIZE;
+  const Unit filter = 0xF;
+  std::string rv("0x");
+  for (auto itr = value.crbegin(); itr != value.crend(); ++itr) {
+    for (int i = 0; i < CHAR_NUM; ++i) {
+      Unit shift = HEX_CHAR_SIZE * (CHAR_NUM - i - 1);
+      Unit u = (*itr & (filter << shift)) >> shift;
+      if (u <= 9) {
+        rv.push_back(u + '0');
+      } else {
+        assert(0xA <= u && u <= 0xF);
+        rv.push_back(u - 10 + 'A');
+      }
+    }
+  }
+  while (rv.size() >= 4 && rv[2] == '0') {
+    rv.erase(rv.begin() + 2, rv.begin() + 3);
+  }
+  assert(rv == "0x0" || rv[2] != '0');
+  return rv;
 }
 
 CNum::Unit CNum::Counter::size() const { return value.size(); }
@@ -320,48 +346,7 @@ CNum::Counter CNum::Counter::operator++(int) {
 }
 
 CNum::Counter CNum::Counter::operator+() const { return *this; }
-// CNum::Counter::Counter(const std::string s) :
-//		m_size(0), m_ptr(nullptr) {
-/*
- auto rItr = s.rbegin();
- for (; rItr != s.rend(); ++rItr) {
- char c = *rItr;
- if (!('0' <= c && c <= '1')) {
- break;
- }
- }
- byte_size size = rItr - s.rbegin();
- zero(size/8+1);
- for (; rItr != s.rbegin(); --rItr) {
- *this <<= 1ULL;
- *this += *rItr - '0';
- }
- byte b = 0;
- byte_pos bitPos = 0;
- byte_pos bytePos = 0;
- for (auto itr = s.rbegin(); itr != s.rend(); ++itr) {
- b |= ( == '0' ? 0 : 1) << bitPos++;
- if (bitPos >= 8) {
- []
- }
- }
- */
-//}
-/*
- CNum::Counter& CNum::Counter::operator <<(const Counter&) {
- return *this;
- }
- */
 
-/*
- CNum::Counter::byte_pos_diff CNum::Counter::diff(byte_pos i, byte_pos j) {
- bool i_larger = i > j;
- byte_size abs_diff = i_larger ? i - j : j - i;
- assert(abs_diff <= INT64_MAX);
- byte_pos_diff diff = static_cast<byte_pos_diff>(abs_diff);
- return i_larger ? diff : -diff;
- }
- */
 /*
  CNum::Counter& CNum::Counter::operator --() {
  byte_pos i = 0;

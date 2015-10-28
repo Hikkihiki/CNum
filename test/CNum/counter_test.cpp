@@ -649,6 +649,22 @@ TEST(CNumCounter, GreaterThanEqual) {
   ASSERT_TRUE(a >= a);
 }
 
+TEST(CNumCounter, HexConversion) {
+  {
+    Counter a("0x0123456789abcdef");
+    ASSERT_EQ(std::string("0x123456789ABCDEF"), a.hex());
+  }
+  {
+    ASSERT_EQ(std::string("0x0"), Counter("0x0").hex());
+    ASSERT_EQ(std::string("0x1"), Counter("0x1").hex());
+    ASSERT_EQ(std::string("0x13814573985739172498537957190857139857398457398573"
+                          "198573198ABCDEF"),
+              Counter("0x138145739857391724985379571908571398573984573985731985"
+                      "73198abcdef")
+                  .hex());
+  }
+}
+
 /*
  TEST(CNumCounter, PrefixDecrement) {
  {

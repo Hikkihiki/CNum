@@ -57,7 +57,7 @@ public:
   friend bool operator<=(const Counter &, const Counter &);
   friend bool operator>=(const Counter &, const Counter &);
 
-  // friend std::ostream &operator<<(std::ostream &, const Counter &);
+  friend std::ostream &operator<<(std::ostream &, const Counter &);
 
   // prefix
   Counter &operator++();
@@ -83,6 +83,9 @@ public:
   Unit unit(Index pos = 0) const;
 
   Unit size() const;
+
+  std::string hex() const;
+  std::string dec() const;
 
 private:
   // typedef std::size_t byte_size;
@@ -121,7 +124,7 @@ bool operator>(const Counter &, const Counter &);
 bool operator<=(const Counter &, const Counter &);
 bool operator>=(const Counter &, const Counter &);
 
-// std::ostream &operator<<(std::ostream &, const Counter &);
+std::ostream &operator<<(std::ostream &, const Counter &);
 }
 
 #endif /* INCLUDE_COUNTER_HPP_ */
