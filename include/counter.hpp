@@ -57,7 +57,7 @@ public:
   friend bool operator<=(const Counter &, const Counter &);
   friend bool operator>=(const Counter &, const Counter &);
 
-  friend std::ostream &operator<<(std::ostream &, const Counter &);
+  // friend std::ostream &operator<<(std::ostream &, const Counter &);
 
   // prefix
   Counter &operator++();
@@ -71,16 +71,18 @@ public:
   Counter &operator-() = delete;
   Counter operator+() const;
 
-  Counter &operator+=(const Counter &rhs);
-  Counter &operator-=(const Counter &rhs);
-  Counter &operator*=(const Counter &rhs);
+  Counter &operator+=(const Counter rhs);
+  Counter &operator-=(const Counter rhs);
+  Counter &operator*=(const Counter rhs);
 
   // Counter& operator <<(const Counter& rhs);
-  // Counter& operator<<=(const Counter& rhs);
+  Counter &operator<<=(const Counter rhs);
 
   // Down Casting
   unsigned long long ull() const;
-  Unit unit() const;
+  Unit unit(Index pos = 0) const;
+
+  Unit size() const;
 
 private:
   // typedef std::size_t byte_size;
@@ -107,9 +109,10 @@ private:
   // std::unique_ptr<Unit[]> m_ptr;
 };
 
-Counter operator+(Counter lhs, Counter const &rhs);
-Counter operator-(Counter lhs, Counter const &rhs);
-Counter operator*(Counter lhs, Counter const &rhs);
+Counter operator+(Counter lhs, const Counter &rhs);
+Counter operator-(Counter lhs, const Counter &rhs);
+Counter operator*(Counter lhs, const Counter &rhs);
+Counter operator<<(Counter lhs, const Counter &rhs);
 
 bool operator==(const Counter &, const Counter &);
 bool operator!=(const Counter &, const Counter &);
@@ -118,7 +121,7 @@ bool operator>(const Counter &, const Counter &);
 bool operator<=(const Counter &, const Counter &);
 bool operator>=(const Counter &, const Counter &);
 
-std::ostream &operator<<(std::ostream &, const Counter &);
+// std::ostream &operator<<(std::ostream &, const Counter &);
 }
 
 #endif /* INCLUDE_COUNTER_HPP_ */

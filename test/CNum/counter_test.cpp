@@ -98,6 +98,9 @@ INSTANTIATE_TEST_CASE_P(
                         0xAABBCCDDULL * 0x11223344ULL, 0x11223344, 0),
         std::make_tuple(0xFFFFFFFF, 0x100000000, 0, 0xFFFFFFFF00000000ULL,
                         0x100000000, 0),
+        std::make_tuple(0x8ac7230489e80000ULL, 10, 0, 0x6bc75e2d63100000ULL, 10,
+                        0x5ULL),
+        std::make_tuple(0, 0, 0xFFFF, 0xFFFF, 0, 0),
         std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, 0, 1, CNum::UNIT_MAX,
                         CNum::UNIT_MAX - 1),
         std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, CNum::UNIT_MAX, 0,
@@ -232,6 +235,10 @@ TEST(CNumCounter, HexStringConstructor) {
     Counter a("0x11223344556677881122334455667788");
     ASSERT_EQ(0x1122334455667788, a.ull());
   }
+  {
+    Counter a("0x56bc75e2d63100000");
+    ASSERT_EQ(0x6bc75e2d63100000, a.ull());
+  }
 }
 
 TEST(CNumCounter, DecStringConstructor) {
@@ -270,6 +277,22 @@ TEST(CNumCounter, DecStringConstructor) {
     Counter a("1157920892373161954235709850086879078532699846656405640394575840"
               "07913129641170");
     ASSERT_EQ(1234ULL, a.ull());
+  }
+  {
+    // 10^19
+    Counter a("10000000000000000000");
+    ASSERT_EQ(Counter("0x8ac7230489e80000"), a);
+    ASSERT_EQ(0x8ac7230489e80000ULL, a.ull());
+    ASSERT_EQ(10000000000000000000ULL, a.ull());
+    ASSERT_EQ(Counter("0x56bc75e2d63100000"), a * 10);
+    ASSERT_EQ(Counter("100000000000000000000"), a * 10)
+        << Counter("100000000000000000000").unit(0) << " "
+        << Counter("100000000000000000000").unit(1);
+  }
+  {
+    // 10^20
+    Counter a("100000000000000000000");
+    ASSERT_EQ(Counter("0x56bc75e2d63100000"), a);
   }
 }
 
@@ -361,6 +384,30 @@ TEST(CNumCounter, AdditionAssignment) {
       b = a;
     }
   }
+  {
+    Counter a("");
+    Counter b("");
+    ASSERT_EQ(Counter(""), a += b);
+  }
+  {
+    Counter a("8057398573985732095837259083279853798537295837250987923753925793"
+              "7459038753985732895");
+    Counter b("1");
+    ASSERT_EQ(
+        Counter(
+            "8057398573985732095837259083279853798537295837250987923753925793"
+            "7459038753985732896"),
+        a += b);
+  }
+  {
+    /*
+  Counter a("8057398573985732095837259083279853798537295837250987923753925793"
+            "7459038753985732895");
+  Counter b("1611479714797146419167451816655970759707459167450197584750785158"
+            "74918077507971465790");
+  ASSERT_EQ(b, a += a);
+     */
+  }
 }
 
 TEST(CNumCounter, SubtractionAssignment) {
@@ -387,7 +434,7 @@ TEST(CNumCounter, SubtractionAssignment) {
   }
 }
 
-TEST(CNumCounter, Multiplicationssignment) {
+TEST(CNumCounter, MultiplicationAssignment) {
   {
     Counter a = 0;
     ASSERT_EQ(0, a *= 0);
@@ -412,6 +459,16 @@ TEST(CNumCounter, Multiplicationssignment) {
     Counter a = 0xABCDULL;
     ASSERT_EQ(0xABCDULL * 0x1234ULL, a *= 0x1234ULL);
   }
+  {
+    Counter a = 1;
+    std::string str("1");
+    for (int i = 1; i <= 500; i += 10) {
+      for (int j = 0; j < 10; j++) {
+        str.push_back('0');
+      }
+      ASSERT_EQ(Counter(str), a *= 10000000000) << i;
+    }
+  }
 }
 
 TEST(CNumCounter, Addition) {
@@ -426,13 +483,22 @@ TEST(CNumCounter, Addition) {
 }
 
 TEST(CNumCounter, Muplication) {
-  Counter a = 3;
-  ASSERT_EQ(6, a * 2);
-  ASSERT_EQ(0, a * 0);
-  ASSERT_EQ(987654321ULL * 3, a = a * 987654321ULL);
+  {
+    Counter a = 3;
+    ASSERT_EQ(6, a * 2);
+    ASSERT_EQ(0, a * 0);
+    ASSERT_EQ(987654321ULL * 3, a = a * 987654321ULL);
 
-  Counter b = 1234567890ULL;
-  ASSERT_EQ(987654321ULL * 1234567890ULL * 3, a * b);
+    Counter b = 1234567890ULL;
+    ASSERT_EQ(987654321ULL * 1234567890ULL * 3, a * b);
+  }
+  {
+    ASSERT_EQ(Counter(""), Counter("") * Counter(""));
+    ASSERT_EQ(Counter("44638112098138407571318574082261234507924739492194936899"
+                      "01791797045200"),
+              Counter("129034829048290428904280494390583490") *
+                  Counter("34593847589345734085430857340853480"));
+  }
 }
 
 TEST(CNumCounter, Equals) {
