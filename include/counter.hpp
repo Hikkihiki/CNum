@@ -18,23 +18,22 @@ typedef uint64_t Size;
 
 const Unit UNIT_MAX = -1;
 // const Unit UNIT_MIN = 0;
+const Unit UNIT_BIT_SIZE = sizeof(Unit) * 8;
 
 // unit1 = unit1 + unit2 + carry, carry = new carry
-void add(Unit& unit1, const Unit& unit2, Unit& carry);
+void add(Unit &unit1, const Unit &unit2, Unit &carry);
 
 // unit1 = unit1 - unit2 - carry, carry = new carry
-void sub(Unit& unit1, const Unit& unit2, Unit& carry);
+void sub(Unit &unit1, const Unit &unit2, Unit &carry);
 
-/*
 // unit1 = unit1 * unit2 + carry, carry = new carry
-void mul(Unit& unit1, const Unit& unit2, Unit& carry);
-*/
+void mul(Unit &unit1, const Unit &unit2, Unit &carry);
 
 // unit = (unit << shift) | filler, filler = dropped bits
-void left_shift(Unit& unit, const Unit& shift, Unit& filler);
+void left_shift(Unit &unit, const Unit &shift, Unit &filler);
 
 class Counter {
- public:
+public:
   // typedef unsigned long UL;
 
   Counter();
@@ -42,26 +41,26 @@ class Counter {
   Counter(unsigned long long v);
 
   // copy constructor
-  Counter(const Counter& c);
+  Counter(const Counter &c);
 
-  Counter(const std::string& s);
+  Counter(const std::string &s);
 
   // copy assignment
-  Counter& operator=(const Counter& rhs);
+  Counter &operator=(const Counter &rhs);
 
   // == operator is declared as free function so that
   // 1 == Counter(1) is valid expression
-  friend bool operator==(const Counter&, const Counter&);
-  friend bool operator!=(const Counter&, const Counter&);
-  friend bool operator<(const Counter&, const Counter&);
-  friend bool operator>(const Counter&, const Counter&);
-  friend bool operator<=(const Counter&, const Counter&);
-  friend bool operator>=(const Counter&, const Counter&);
+  friend bool operator==(const Counter &, const Counter &);
+  friend bool operator!=(const Counter &, const Counter &);
+  friend bool operator<(const Counter &, const Counter &);
+  friend bool operator>(const Counter &, const Counter &);
+  friend bool operator<=(const Counter &, const Counter &);
+  friend bool operator>=(const Counter &, const Counter &);
 
-  friend std::ostream& operator<<(std::ostream&, const Counter&);
+  friend std::ostream &operator<<(std::ostream &, const Counter &);
 
   // prefix
-  Counter& operator++();
+  Counter &operator++();
   // Counter& operator --();
 
   // postfix
@@ -69,11 +68,11 @@ class Counter {
   // Counter operator --(int);
 
   // prefix
-  Counter& operator-() = delete;
+  Counter &operator-() = delete;
   Counter operator+() const;
 
-  Counter& operator+=(const Counter& rhs);
-  Counter& operator-=(const Counter& rhs);
+  Counter &operator+=(const Counter &rhs);
+  Counter &operator-=(const Counter &rhs);
 
   // Counter& operator <<(const Counter& rhs);
   // Counter& operator<<=(const Counter& rhs);
@@ -82,7 +81,7 @@ class Counter {
   unsigned long long ull() const;
   Unit unit() const;
 
- private:
+private:
   // typedef std::size_t byte_size;
   // typedef byte_size byte_pos;
   // typedef std::ptrdiff_t byte_pos_diff;
@@ -107,17 +106,17 @@ class Counter {
   // std::unique_ptr<Unit[]> m_ptr;
 };
 
-Counter operator+(Counter lhs, Counter const& rhs);
-Counter operator-(Counter lhs, Counter const& rhs);
+Counter operator+(Counter lhs, Counter const &rhs);
+Counter operator-(Counter lhs, Counter const &rhs);
 
-bool operator==(const Counter&, const Counter&);
-bool operator!=(const Counter&, const Counter&);
-bool operator<(const Counter&, const Counter&);
-bool operator>(const Counter&, const Counter&);
-bool operator<=(const Counter&, const Counter&);
-bool operator>=(const Counter&, const Counter&);
+bool operator==(const Counter &, const Counter &);
+bool operator!=(const Counter &, const Counter &);
+bool operator<(const Counter &, const Counter &);
+bool operator>(const Counter &, const Counter &);
+bool operator<=(const Counter &, const Counter &);
+bool operator>=(const Counter &, const Counter &);
 
-std::ostream& operator<<(std::ostream&, const Counter&);
+std::ostream &operator<<(std::ostream &, const Counter &);
 }
 
 #endif /* INCLUDE_COUNTER_HPP_ */

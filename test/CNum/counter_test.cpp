@@ -86,6 +86,33 @@ TEST_P(LeftShiftTest, SanityTest) {
   }
 };
 
+class MultiplicationTest : public ::testing::TestWithParam<
+                               std::tuple<Unit, Unit, Unit, Unit, Unit, Unit>> {
+};
+INSTANTIATE_TEST_CASE_P(
+    CNumUnit, MultiplicationTest,
+    ::testing::Values(
+        std::make_tuple(0, 0, 0, 0, 0, 0), std::make_tuple(2, 1, 0, 2, 1, 0),
+        std::make_tuple(3, 4, 1, 13, 4, 0),
+        std::make_tuple(0xAABBCCDD, 0x11223344, 0,
+                        0xAABBCCDDULL * 0x11223344ULL, 0x11223344, 0),
+        std::make_tuple(0xFFFFFFFF, 0x100000000, 0, 0xFFFFFFFF00000000ULL,
+                        0x100000000, 0),
+        std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, 0, 1, CNum::UNIT_MAX,
+                        CNum::UNIT_MAX - 1),
+        std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_MAX, CNum::UNIT_MAX, 0,
+                        CNum::UNIT_MAX, CNum::UNIT_MAX),
+        std::make_tuple(CNum::UNIT_MAX, 0, CNum::UNIT_MAX, CNum::UNIT_MAX, 0,
+                        0)));
+TEST_P(MultiplicationTest, SanityTest) {
+  Unit a, b, carry, exp_a, exp_b, exp_carry;
+  std::tie(a, b, carry, exp_a, exp_b, exp_carry) = GetParam();
+  CNum::mul(a, b, carry);
+  ASSERT_EQ(exp_a, a);
+  ASSERT_EQ(exp_b, b);
+  ASSERT_EQ(exp_carry, carry);
+};
+
 /*
 TEST_P(CNumUnit, LeftShift) {
   Params param = GetParam();

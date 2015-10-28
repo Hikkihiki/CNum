@@ -5,26 +5,51 @@
 #include <sstream>
 
 void CNum::add(Unit &unit1, const Unit &unit2, Unit &carry) {
-  assert(carry == 0 || carry == 1);
   carry = (unit1 += carry) < carry;
   carry += (unit1 += unit2) < unit2;
-  assert(carry == 0 || carry == 1);
+  assert(carry <= 1);
 }
 
 void CNum::sub(Unit &unit1, const Unit &unit2, Unit &carry) {
-  assert(carry == 0 || carry == 1);
   Unit u = unit1;
   carry = (unit1 -= carry) > u;
   u = unit1;
   carry += (unit1 -= unit2) > u;
-  assert(carry == 0 || carry == 1);
+  assert(carry <= 1);
 }
-/*
-void mul(Unit& unit1, const Unit& unit2, Unit& carry) {
-  Unit u = unit1;
-  Unit u2 = unit2;
+
+// Note that: 0xFFFF*0xFFFF+0xFFFF = 0xFFFF0000,
+// the carry won't overflow in the worst case
+void CNum::mul(Unit &unit1, const Unit &unit2, Unit &carry) {
+  assert(CNum::UNIT_BIT_SIZE % 2 == 0);
+  const Unit HALF_BIT_SIZE = CNum::UNIT_BIT_SIZE / 2;
+  const Unit lf = CNum::UNIT_MAX >> HALF_BIT_SIZE;
+  const Unit hf = CNum::UNIT_MAX << HALF_BIT_SIZE;
+  const Unit lu1 = unit1 & lf;
+  const Unit hu1 = (unit1 & hf) >> HALF_BIT_SIZE;
+  const Unit lu2 = unit2 & lf;
+  const Unit hu2 = (unit2 & hf) >> HALF_BIT_SIZE;
+
+  unit1 = lu1 * lu2;
+  const Unit s1 = hu1 * lu2;
+  const Unit s2 = lu1 * hu2;
+  const Unit s3 = hu1 * hu2;
+
+  add(unit1, 0, carry);
+
+  Unit carry2 = 0;
+  add(unit1, (s1 & lf) << HALF_BIT_SIZE, carry2);
+  carry += carry2;
+
+  Unit carry3 = 0;
+  add(unit1, (s2 & lf) << HALF_BIT_SIZE, carry3);
+  carry += carry3;
+  printf("%llu\n", unit1);
+
+  carry += ((s1 & hf) >> HALF_BIT_SIZE);
+  carry += ((s2 & hf) >> HALF_BIT_SIZE);
+  carry += s3;
 }
-*/
 
 void CNum::left_shift(Unit &unit, const Unit &shift, Unit &filler) {
   assert(0 <= shift && shift < sizeof(Unit) * 8);
@@ -63,7 +88,6 @@ CNum::Counter::Counter(const std::string &s) : value() {
   }
 
   if (base == 16) {
-    const Unit UNIT_BIT_SIZE = sizeof(Unit) * 8;
     const Unit CHAR_SIZE = 4;
     // 1 character in hex occupied 4 bits
 
