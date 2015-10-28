@@ -400,13 +400,12 @@ TEST(CNumCounter, AdditionAssignment) {
         a += b);
   }
   {
-    /*
-  Counter a("8057398573985732095837259083279853798537295837250987923753925793"
-            "7459038753985732895");
-  Counter b("1611479714797146419167451816655970759707459167450197584750785158"
-            "74918077507971465790");
-  ASSERT_EQ(b, a += a);
-     */
+
+    Counter a("8057398573985732095837259083279853798537295837250987923753925793"
+              "7459038753985732895");
+    Counter b("1611479714797146419167451816655970759707459167450197584750785158"
+              "74918077507971465790");
+    ASSERT_EQ(b, a += a);
   }
 }
 
@@ -471,6 +470,52 @@ TEST(CNumCounter, MultiplicationAssignment) {
   }
 }
 
+TEST(CNumCounter, LeftShiftAssignment) {
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a <<= 0);
+    ASSERT_EQ(0, a <<= 1);
+    ASSERT_EQ(0, a <<= 2);
+    ASSERT_EQ(0, a <<= 7);
+    ASSERT_EQ(0, a <<= 23);
+    ASSERT_EQ(0, a <<= 63);
+    ASSERT_EQ(0, a <<= 64);
+    ASSERT_EQ(0, a <<= 65);
+    ASSERT_EQ(0, a <<= CNum::UNIT_MAX);
+  }
+  {
+    Counter a = 1;
+    ASSERT_EQ(1, (a = 1, a <<= 0));
+    ASSERT_EQ(2, (a = 1, a <<= 1));
+    ASSERT_EQ(4, (a = 1, a <<= 2));
+    ASSERT_EQ(128, (a = 1, a <<= 7));
+    ASSERT_EQ(8388608, (a = 1, a <<= 23));
+    ASSERT_EQ(9223372036854775808ULL, (a = 1, a <<= 63));
+    ASSERT_EQ(Counter("18446744073709551616"), (a = 1, a <<= 64));
+    ASSERT_EQ(Counter("36893488147419103232"), (a = 1, a <<= 65));
+  }
+  {
+    std::string str(
+        "0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABC"
+        "DEF0123456789ABCDEF");
+    Counter a(str);
+    for (int i = 0; i < 1244 / 4; i++) {
+      str.push_back('0');
+    }
+    ASSERT_EQ(Counter(str), a <<= 1244);
+  }
+  {
+    std::string str(
+        "0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABC"
+        "DEF0123456789ABCDEF");
+    Counter a(str);
+    for (int i = 0; i < 2048 / 4; i++) {
+      str.push_back('0');
+    }
+    ASSERT_EQ(Counter(str), a <<= 2048);
+  }
+}
+
 TEST(CNumCounter, Addition) {
   Counter a = 0;
   ASSERT_EQ(0, a + 0);
@@ -498,6 +543,21 @@ TEST(CNumCounter, Muplication) {
                       "01791797045200"),
               Counter("129034829048290428904280494390583490") *
                   Counter("34593847589345734085430857340853480"));
+  }
+}
+
+TEST(CNumCounter, LeftShift) {
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a << 0);
+    ASSERT_EQ(0, a << 1);
+    ASSERT_EQ(987654321ULL * 16, Counter(987654321ULL) << 4);
+  }
+  {
+    ASSERT_EQ(Counter(""), Counter("") << Counter(""));
+    Counter a("4463811209813840757131857408226123450792473949219493689901791797"
+              "045200");
+    ASSERT_EQ(a * Counter("1267650600228229401496703205376"), a << 100);
   }
 }
 

@@ -71,12 +71,12 @@ public:
   Counter &operator-() = delete;
   Counter operator+() const;
 
-  Counter &operator+=(const Counter rhs);
-  Counter &operator-=(const Counter rhs);
-  Counter &operator*=(const Counter rhs);
+  Counter &operator+=(const Counter &rhs);
+  Counter &operator-=(const Counter &rhs);
+  Counter &operator*=(const Counter &rhs);
 
   // Counter& operator <<(const Counter& rhs);
-  Counter &operator<<=(const Counter rhs);
+  Counter &operator<<=(const Counter &rhs);
 
   // Down Casting
   unsigned long long ull() const;

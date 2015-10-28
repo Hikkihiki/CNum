@@ -51,8 +51,8 @@ void CNum::mul(Unit &unit1, const Unit &unit2, Unit &carry) {
 }
 
 void CNum::left_shift(Unit &unit, const Unit &shift, Unit &filler) {
-  assert(0 <= shift && shift < sizeof(Unit) * 8);
-  Unit newFiller = unit >> (sizeof(Unit) * 8 - shift);
+  assert(0 <= shift && shift < UNIT_BIT_SIZE);
+  Unit newFiller = unit >> (UNIT_BIT_SIZE - shift);
   unit <<= shift;
   unit |= filler;
   filler = newFiller;
@@ -216,7 +216,7 @@ CNum::Counter &CNum::Counter::operator=(const Counter &rhs) {
   return *this;
 }
 
-CNum::Counter &CNum::Counter::operator+=(const Counter rhs) {
+CNum::Counter &CNum::Counter::operator+=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
 
@@ -232,7 +232,7 @@ CNum::Counter &CNum::Counter::operator+=(const Counter rhs) {
   return *this;
 }
 
-CNum::Counter &CNum::Counter::operator-=(const Counter rhs) {
+CNum::Counter &CNum::Counter::operator-=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
   assert(rhs <= *this);
@@ -246,7 +246,7 @@ CNum::Counter &CNum::Counter::operator-=(const Counter rhs) {
   return *this;
 }
 
-CNum::Counter &CNum::Counter::operator*=(const Counter rhs) {
+CNum::Counter &CNum::Counter::operator*=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
 
@@ -269,12 +269,25 @@ CNum::Counter &CNum::Counter::operator*=(const Counter rhs) {
   return *this;
 }
 
-CNum::Counter &CNum::Counter::operator<<=(const Counter rhs) {
-  assert(rhs.ull() % 64 == 0);
-  for (int i = 0; i < rhs.ull() / 64; ++i) {
+CNum::Counter &CNum::Counter::operator<<=(const Counter &rhs) {
+  assert(rhs.value.size() == 1);
+  // assert(rhs.unit() % UNIT_BIT_SIZE == 0);
+  if (*this == 0) {
+    return *this;
+  }
+  if (Unit r = rhs.value[0] % UNIT_BIT_SIZE) {
+    Unit filler = 0;
+    for (Unit i = 0; i < value.size(); ++i) {
+      CNum::left_shift(value[i], r, filler);
+    }
+    if (filler) {
+      value.push_back(filler);
+    }
+  }
+  assert(isNormalized());
+  for (Unit i = 0; i < rhs.value[0] / UNIT_BIT_SIZE; ++i) {
     value.insert(value.cbegin(), 0);
   }
-  normalize();
   assert(isNormalized());
   return *this;
 }
