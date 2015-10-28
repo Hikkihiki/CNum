@@ -114,17 +114,17 @@ CNum::Counter::Counter(const std::string &s) : value() {
     normalize();
   } else if (base == 10) {
     // Naive algorithm that make use of multiplication and addition
-    /*
-  Unit exp = 1;
-  for (auto itr = rBegin; itr != rEnd; itr++) {
-    Unit c = *itr;
-    if ('0' <= c && c <= '9') {
-      c -= '0';
-    } else {
-      throw;
+    *this = 0;
+    Counter exp = 1;
+    for (auto itr = rBegin; itr != rEnd; itr++, exp *= 10) {
+      Unit c = *itr;
+      if ('0' <= c && c <= '9') {
+        c -= '0';
+      } else {
+        throw;
+      }
+      *this += (c * exp);
     }
-  }
-     */
   } else {
     throw;
   }
@@ -144,6 +144,7 @@ CNum::Counter::Counter(const Counter &c) : Counter(0) { *this = c; }
 
 void CNum::Counter::setZero() {
   value.clear();
+  value.push_back(0);
   assert(isNormalized());
 }
 
@@ -249,6 +250,7 @@ CNum::Counter &CNum::Counter::operator*=(const Counter &rhs) {
     Unit r = pos >= rhs.value.size() ? 0 : rhs.value[pos];
     CNum::mul(value[pos], r, carry);
   }
+  normalize();
   assert(isNormalized());
   return *this;
 }

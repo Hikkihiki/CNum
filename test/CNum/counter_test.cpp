@@ -234,6 +234,45 @@ TEST(CNumCounter, HexStringConstructor) {
   }
 }
 
+TEST(CNumCounter, DecStringConstructor) {
+  {
+    Counter a("");
+    ASSERT_EQ(0, a);
+  }
+  {
+    Counter a("0");
+    ASSERT_EQ(0, a);
+  }
+  {
+    Counter a("1");
+    ASSERT_EQ(1, a);
+  }
+  {
+    Counter a("1234");
+    ASSERT_EQ(1234, a);
+  }
+  {
+    Counter a("00123");
+    ASSERT_EQ(123, a);
+  }
+  {
+    Counter a("1122334455667788");
+    ASSERT_EQ(1122334455667788ULL, a.ull());
+  }
+  {
+    // 16^64
+    Counter a("1157920892373161954235709850086879078532699846656405640394575840"
+              "07913129639936");
+    ASSERT_EQ(0ULL, a.ull());
+  }
+  {
+    // 16^64 + 1234
+    Counter a("1157920892373161954235709850086879078532699846656405640394575840"
+              "07913129641170");
+    ASSERT_EQ(1234ULL, a.ull());
+  }
+}
+
 TEST(CNumCounter, CopyConstructor) {
   {
     Counter a = Counter(10);
