@@ -311,6 +311,10 @@ TEST(CNumCounter, AdditionAssignment) {
     ASSERT_EQ(999999999 + 13, a += 999999999);
   }
   {
+    Counter a = 1;
+    ASSERT_EQ(1, a += 0);
+  }
+  {
     Counter b = 0;
     Counter a = b;
     for (long i = 0; i < 1000000LL; ++i) {
@@ -327,6 +331,10 @@ TEST(CNumCounter, SubtractionAssignment) {
     ASSERT_DEATH(a -= 1, "");
   }
   {
+    Counter a = 1;
+    ASSERT_EQ(1, a -= 0);
+  }
+  {
     Counter a = 99999999ULL;
     ASSERT_EQ(99999999ULL - 1234567, a -= 1234567);
   }
@@ -340,6 +348,33 @@ TEST(CNumCounter, SubtractionAssignment) {
   }
 }
 
+TEST(CNumCounter, Multiplicationssignment) {
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a *= 0);
+  }
+  {
+    Counter a = 1;
+    ASSERT_EQ(0, a *= 0);
+  }
+  {
+    Counter a = 1;
+    ASSERT_EQ(1, a *= 1);
+  }
+  {
+    Counter a = 1;
+    ASSERT_EQ(2, a *= 2);
+  }
+  {
+    Counter a = 3;
+    ASSERT_EQ(3, a *= 1);
+  }
+  {
+    Counter a = 0xABCDULL;
+    ASSERT_EQ(0xABCDULL * 0x1234ULL, a *= 0x1234ULL);
+  }
+}
+
 TEST(CNumCounter, Addition) {
   Counter a = 0;
   ASSERT_EQ(0, a + 0);
@@ -349,6 +384,16 @@ TEST(CNumCounter, Addition) {
   Counter b = 1234567890LL;
   ASSERT_EQ(987654321LL + 1234567890LL, a + b);
   ASSERT_EQ(3 * 1234567890LL, b + b + b);
+}
+
+TEST(CNumCounter, Muplication) {
+  Counter a = 3;
+  ASSERT_EQ(6, a * 2);
+  ASSERT_EQ(0, a * 0);
+  ASSERT_EQ(987654321ULL * 3, a = a * 987654321ULL);
+
+  Counter b = 1234567890ULL;
+  ASSERT_EQ(987654321ULL * 1234567890ULL * 3, a * b);
 }
 
 TEST(CNumCounter, Equals) {

@@ -23,8 +23,8 @@ const Unit UNIT_BIT_SIZE = sizeof(Unit) * 8;
 // unit1 = unit1 + unit2 + carry, carry = new carry
 void add(Unit &unit1, const Unit &unit2, Unit &carry);
 
-// unit1 = unit1 - unit2 - carry, carry = new carry
-void sub(Unit &unit1, const Unit &unit2, Unit &carry);
+// unit1 = unit1 - unit2 - borrow, borrow = new borrow
+void sub(Unit &unit1, const Unit &unit2, Unit &borrow);
 
 // unit1 = unit1 * unit2 + carry, carry = new carry
 void mul(Unit &unit1, const Unit &unit2, Unit &carry);
@@ -73,6 +73,7 @@ public:
 
   Counter &operator+=(const Counter &rhs);
   Counter &operator-=(const Counter &rhs);
+  Counter &operator*=(const Counter &rhs);
 
   // Counter& operator <<(const Counter& rhs);
   // Counter& operator<<=(const Counter& rhs);
@@ -108,6 +109,7 @@ private:
 
 Counter operator+(Counter lhs, Counter const &rhs);
 Counter operator-(Counter lhs, Counter const &rhs);
+Counter operator*(Counter lhs, Counter const &rhs);
 
 bool operator==(const Counter &, const Counter &);
 bool operator!=(const Counter &, const Counter &);
