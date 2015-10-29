@@ -127,6 +127,7 @@ Counter operator+(Counter lhs, const Counter &rhs);
 Counter operator-(Counter lhs, const Counter &rhs);
 Counter operator*(Counter lhs, const Counter &rhs);
 Counter operator<<(Counter lhs, const Counter &rhs);
+Counter operator>>(Counter lhs, const Counter &rhs);
 
 bool operator==(const Counter &, const Counter &);
 bool operator!=(const Counter &, const Counter &);

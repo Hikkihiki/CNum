@@ -330,22 +330,27 @@ CNum::Counter &CNum::Counter::operator*=(const Counter &rhs) {
   return *this;
 }
 
-// Doing division by binary search...
+// Doing division by naive search... O(n^3)
 CNum::Counter &CNum::Counter::operator/=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
-  // find upperbound
-  Counter ub(rhs);
-  while (ub < *this) {
-    ub *= 2;
-  }
-
+  assert(rhs > 0);
+  // find upperbound ub such that rhs*ub > lhs >= rhs*(ub/2)
+  Counter rem(*this);
   Counter sol = 0;
-  Unit pos = 0;
-  while (rhs <= *this) {
-    rhs.value[rhs.value.size() - pos - 1];
+  while (rem >= rhs) {
+    Counter bit(1);
+    Counter ub(rhs);
+    while (ub <= rem) {
+      ub <<= 1;
+      bit <<= 1;
+    }
+    ub >>= 1;
+    bit >>= 1;
+    sol += bit;
+    rem -= ub;
   }
-
+  *this = sol;
   return *this;
 }
 
@@ -460,6 +465,10 @@ CNum::Counter CNum::operator*(Counter lhs, const Counter &rhs) {
 
 CNum::Counter CNum::operator<<(Counter lhs, const Counter &rhs) {
   return lhs <<= rhs;
+}
+
+CNum::Counter CNum::operator>>(Counter lhs, const Counter &rhs) {
+  return lhs >>= rhs;
 }
 
 CNum::Counter &CNum::Counter::operator++() {

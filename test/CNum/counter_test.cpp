@@ -518,6 +518,73 @@ TEST(CNumCounter, MultiplicationAssignment) {
   }
 }
 
+TEST(CNumCounter, DivisionAssignment) {
+  {
+    Counter a = 0;
+    ASSERT_DEATH(a /= 0, "");
+  }
+  {
+    Counter a = 1;
+    ASSERT_DEATH(a /= 0, "");
+  }
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a /= 1);
+  }
+  {
+    Counter a = 1;
+    ASSERT_EQ(1, a /= 1);
+  }
+  {
+    Counter a = 2;
+    ASSERT_EQ(2, a /= 1);
+  }
+  {
+    Counter a = 2;
+    ASSERT_EQ(1, a /= 2);
+  }
+  {
+    Counter a = 3;
+    ASSERT_EQ(3, a /= 1);
+  }
+  {
+    Counter a = 3;
+    ASSERT_EQ(1, a /= 2);
+  }
+  {
+    Counter a = 0xABCDULL * 0x1234ULL;
+    ASSERT_EQ(0xABCDULL, a /= 0x1234ULL);
+  }
+  {
+    Counter a("123456789012345678901234567890");
+    ASSERT_EQ(1, a /= a);
+  }
+  {
+    Counter a("1089471298729846791285729571829");
+    Counter b("410872198572985729852795843");
+    Counter c("447633467791298266595209587598769239788656232418941106847");
+    ASSERT_EQ(b, c /= a);
+    c = Counter("447633467791298266595209587598769239788656232418941106847");
+    ASSERT_EQ(a, c /= b);
+  }
+  {
+    // slow...
+    std::string str("1");
+    for (int i = 1; i <= 200; i += 10) {
+      for (int j = 0; j < 10; j++) {
+        str.push_back('0');
+      }
+    }
+    Counter a(str);
+    for (int i = 1; i <= 200; i += 10) {
+      for (int j = 0; j < 10; j++) {
+        str.pop_back();
+      }
+      ASSERT_EQ(Counter(str), a /= 10000000000) << i;
+    }
+  }
+}
+
 TEST(CNumCounter, LeftShiftAssignment) {
   {
     Counter a = 0;
