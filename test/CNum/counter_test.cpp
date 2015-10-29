@@ -285,9 +285,7 @@ TEST(CNumCounter, DecStringConstructor) {
     ASSERT_EQ(0x8ac7230489e80000ULL, a.ull());
     ASSERT_EQ(10000000000000000000ULL, a.ull());
     ASSERT_EQ(Counter("0x56bc75e2d63100000"), a * 10);
-    ASSERT_EQ(Counter("100000000000000000000"), a * 10)
-        << Counter("100000000000000000000").unit(0) << " "
-        << Counter("100000000000000000000").unit(1);
+    ASSERT_EQ(Counter("100000000000000000000"), a * 10);
   }
   {
     // 10^20
@@ -647,6 +645,17 @@ TEST(CNumCounter, GreaterThanEqual) {
   ASSERT_TRUE(Counter(2L) >= a);
 
   ASSERT_TRUE(a >= a);
+}
+
+TEST(CNumCounter, BitSize) {
+  ASSERT_EQ(0, Counter("0").bitSize());
+  ASSERT_EQ(1, Counter("1").bitSize());
+  ASSERT_EQ(2, Counter("2").bitSize());
+  ASSERT_EQ(2, Counter("3").bitSize());
+  ASSERT_EQ(3, Counter("4").bitSize());
+  ASSERT_EQ(CNum::UNIT_BIT_SIZE, Counter(CNum::UNIT_MAX).bitSize());
+  ASSERT_EQ(20 * 4, Counter("0xFFFFFFFFFFFFFFFFFFFF").bitSize());
+  ASSERT_EQ(20 * 4 - 3, Counter("0x1FFFFFFFFFFFFFFFFFFF").bitSize());
 }
 
 TEST(CNumCounter, HexConversion) {

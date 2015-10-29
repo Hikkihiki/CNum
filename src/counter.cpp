@@ -204,7 +204,7 @@ unsigned long long CNum::Counter::ull() const {
   return value.size() ? value.front() : 0;
 }
 
-CNum::Unit CNum::Counter::unit(Index pos) const {
+CNum::Unit CNum::Counter::operator[](Index pos) const {
   assert(0 <= pos && pos < value.size());
   return value[pos];
 }
@@ -235,7 +235,31 @@ std::string CNum::Counter::hex() const {
   return rv;
 }
 
-CNum::Unit CNum::Counter::size() const { return value.size(); }
+// Implement with long division
+std::string CNum::Counter::dec() const {
+  assert(isNormalized());
+  std::string rv("");
+  return rv;
+}
+
+CNum::Unit CNum::Counter::size() const {
+  assert(isNormalized());
+  return value.size();
+}
+
+CNum::Unit CNum::Counter::bitSize() const {
+  assert(isNormalized());
+  assert(value.size() >= 1);
+  Unit filter = 0x1;
+  Unit count = 0;
+  for (Unit i = UNIT_BIT_SIZE; i > 0; --i) {
+    if (value[value.size() - 1] & (filter << (i - 1))) {
+      count = i;
+      break;
+    }
+  }
+  return count + (value.size() - 1) * UNIT_BIT_SIZE;
+}
 
 CNum::Counter &CNum::Counter::operator=(const Counter &rhs) {
   value = rhs.value;
@@ -293,6 +317,36 @@ CNum::Counter &CNum::Counter::operator*=(const Counter &rhs) {
   *this = sol;
   assert(isNormalized());
   return *this;
+}
+
+CNum::Counter &CNum::Counter::operator/=(const Counter &rhs) {
+  assert(isNormalized());
+  assert(rhs.isNormalized());
+
+  Counter sol = 0;
+  Unit pos = 0;
+  while (rhs <= *this) {
+    rhs.value[rhs.value.size() - pos - 1];
+  }
+
+  return *this;
+}
+
+CNum::Counter CNum::Counter::pow(const Counter &rhs) const {
+  assert(isNormalized());
+  if (*this == 0 && rhs == 0)
+    throw;
+  if (*this == 0)
+    return 0;
+  if (rhs == 0)
+    return 1;
+  // *this >=1 && rhs >=1 here
+  // Do repeated square algorithm
+  Counter rv(*this);
+  std::vector<Counter> sq;
+  sq.push_back(1);
+
+  return rv;
 }
 
 CNum::Counter &CNum::Counter::operator<<=(const Counter &rhs) {

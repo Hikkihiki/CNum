@@ -32,6 +32,9 @@ void mul(Unit &unit1, const Unit &unit2, Unit &carry);
 // unit = (unit << shift) | filler, filler = dropped bits
 void left_shift(Unit &unit, const Unit &shift, Unit &filler);
 
+// unit1 = (unit1 - borrow) / unit2 , borrow = new borrow
+void div(Unit &unit1, const Unit &unit2, Unit &borrow);
+
 class Counter {
 public:
   // typedef unsigned long UL;
@@ -71,18 +74,22 @@ public:
   Counter &operator-() = delete;
   Counter operator+() const;
 
-  Counter &operator+=(const Counter &rhs);
-  Counter &operator-=(const Counter &rhs);
-  Counter &operator*=(const Counter &rhs);
+  Counter &operator+=(const Counter &);
+  Counter &operator-=(const Counter &);
+  Counter &operator*=(const Counter &);
+  Counter &operator/=(const Counter &);
+
+  Counter pow(const Counter &) const;
 
   // Counter& operator <<(const Counter& rhs);
   Counter &operator<<=(const Counter &rhs);
 
   // Down Casting
   unsigned long long ull() const;
-  Unit unit(Index pos = 0) const;
+  Unit operator[](Index pos) const;
 
   Unit size() const;
+  Unit bitSize() const; // O(1): = floor(log2(x))+1 = max 2pow + 1
 
   std::string hex() const;
   std::string dec() const;
