@@ -12,7 +12,7 @@ The design focus is to provide a seemless way to use big integer with a close to
 - [ ] Constructor by binary string
 - [x] Automatic memory reallocation (by using STL)
 - [x] Explicit trim and downcast to unsigned long long
-- [ ] Implicit cast too bool
+- [ ] Implicit cast to bool
 - [x] Addition: +, +=
 - [x] Subtraction: -, -=
 - [x] Muplication: *, *=
@@ -23,3 +23,5 @@ The design focus is to provide a seemless way to use big integer with a close to
 - [ ] Bitwise Operation: &, &=, |, |=, ^, ^=
 - [x] Bit shifting <<, <<=, >>, >>=
 - [ ] Output to std::cout
+- [ ] Input from std::cin
+- [ ] Literal like 123456ULL that append after digit to create a big integer type (is this possible by macro?) 
