@@ -429,10 +429,21 @@ CNum::Counter &CNum::Counter::operator>>=(const Counter &rhs) {
   }
   const Unit div = rhs[0] / UNIT_BIT_SIZE;
   const Unit rem = rhs[0] % UNIT_BIT_SIZE;
+  // coarse shift
+  for (Unit i = 0; i < div; ++i) {
+    value.erase(value.begin());
+  }
+  assert(isNormalized());
   // fine shift
   if (rem) {
     Unit filler = 0;
+    for (Unit i = value.size(); i > 0; --i) {
+      CNum::right_shift(value[i - 1], rem, filler);
+    }
   }
+  normalize();
+  assert(isNormalized());
+  return *this;
 }
 
 CNum::Counter CNum::operator+(Counter lhs, const Counter &rhs) {
