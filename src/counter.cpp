@@ -204,9 +204,9 @@ unsigned long long CNum::Counter::ull() const {
   return value.size() ? value.front() : 0;
 }
 
-CNum::Unit CNum::Counter::operator[](Index pos) const {
-  assert(0 <= pos && pos < value.size());
-  return value[pos];
+CNum::Unit CNum::Counter::operator[](const Index &idx) const {
+  assert(0 <= idx && idx < value.size());
+  return value[idx];
 }
 
 // Simply use printf?
@@ -343,7 +343,13 @@ CNum::Counter CNum::Counter::pow(const Counter &rhs) const {
   // *this >=1 && rhs >=1 here
   // Do repeated square algorithm
   Counter rv(*this);
-  std::vector<Counter> sq;
+  const Unit SQ_SIZE = rhs.log2().ull();
+  std::vector<Counter> sq(SQ_SIZE);
+  sq.push_back(*this);
+  for (Unit i = 1; i < SQ_SIZE; ++i) {
+    sq.push_back(sq[i - 1] * sq[i - 1]);
+  }
+
   sq.push_back(1);
 
   return rv;
@@ -355,6 +361,19 @@ CNum::Counter CNum::Counter::log2() const {
     throw;
   }
   return bitSize() - 1;
+}
+
+bool CNum::Counter::isSet(const Unit &idx) const {
+  assert(isNormalized());
+  if (idx >= bitSize()) {
+    return false;
+  }
+  Unit div = idx / CNum::UNIT_BIT_SIZE;
+  Unit rem = idx % CNum::UNIT_BIT_SIZE;
+  printf("%llu %llu\n", div, rem);
+  printf("%llx\n", value[div]);
+  const Unit FILTER = 1;
+  return (value[div] & (FILTER << rem));
 }
 
 CNum::Counter &CNum::Counter::operator<<=(const Counter &rhs) {

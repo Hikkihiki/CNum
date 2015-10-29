@@ -686,6 +686,29 @@ TEST(CNumCounter, Log2) {
       Counter("0xABCDEF4385927358932759345872389537593207532089ABCDEF").log2());
 }
 
+TEST(CNumCounter, isSet) {
+  Counter a("0x11223344556677889900AABBCCDDEEFF");
+  ASSERT_TRUE(a.isSet(0));
+  ASSERT_TRUE(a.isSet(1));
+  ASSERT_TRUE(a.isSet(2));
+  ASSERT_FALSE(a.isSet(8));
+
+  ASSERT_FALSE(a.isSet(127));
+  ASSERT_FALSE(a.isSet(126));
+  ASSERT_FALSE(a.isSet(125));
+  ASSERT_TRUE(a.isSet(124));
+
+  ASSERT_FALSE(a.isSet(123));
+  ASSERT_FALSE(a.isSet(122));
+  ASSERT_FALSE(a.isSet(121));
+  ASSERT_TRUE(a.isSet(120));
+
+  a = 0;
+  ASSERT_FALSE(a.isSet(0));
+  ASSERT_FALSE(a.isSet(1));
+  ASSERT_FALSE(a.isSet(2));
+}
+
 /*
  TEST(CNumCounter, PrefixDecrement) {
  {

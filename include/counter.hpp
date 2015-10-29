@@ -80,17 +80,18 @@ public:
   Counter &operator/=(const Counter &);
 
   Counter pow(const Counter &) const;
-  Counter log2() const; // O(1): floor(log2(x))
 
   // Counter& operator <<(const Counter& rhs);
   Counter &operator<<=(const Counter &rhs);
 
   // Down Casting
   unsigned long long ull() const;
-  Unit operator[](Index pos) const;
+  Unit operator[](const Index &) const;
 
   Unit size() const;
   Unit bitSize() const; // O(1): = floor(log2(x))+1 = max 2pow + 1
+  Counter log2() const; // O(1): floor(log2(x))
+  bool isSet(const Unit &) const;
 
   std::string hex() const;
   std::string dec() const;
