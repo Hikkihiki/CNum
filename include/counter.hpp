@@ -78,6 +78,7 @@ public:
   Counter &operator-=(const Counter &);
   Counter &operator*=(const Counter &);
   Counter &operator/=(const Counter &);
+  Counter &operator%=(const Counter &);
 
   Counter pow(const Counter &) const;
 
@@ -127,6 +128,7 @@ Counter operator+(Counter lhs, const Counter &rhs);
 Counter operator-(Counter lhs, const Counter &rhs);
 Counter operator*(Counter lhs, const Counter &rhs);
 Counter operator/(Counter lhs, const Counter &rhs);
+Counter operator%(Counter lhs, const Counter &rhs);
 Counter operator<<(Counter lhs, const Counter &rhs);
 Counter operator>>(Counter lhs, const Counter &rhs);
 

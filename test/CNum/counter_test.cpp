@@ -585,6 +585,57 @@ TEST(CNumCounter, DivisionAssignment) {
   }
 }
 
+TEST(CNumCounter, ModAssignment) {
+  {
+    Counter a = 0;
+    ASSERT_DEATH(a %= 0, "");
+  }
+  {
+    Counter a = 1;
+    ASSERT_DEATH(a %= 0, "");
+  }
+  {
+    Counter a = 0;
+    ASSERT_EQ(0, a %= 1);
+  }
+  {
+    Counter a = 1;
+    ASSERT_EQ(0, a %= 1);
+  }
+  {
+    Counter a = 2;
+    ASSERT_EQ(0, a %= 1);
+  }
+  {
+    Counter a = 2;
+    ASSERT_EQ(0, a %= 2);
+  }
+  {
+    Counter a = 3;
+    ASSERT_EQ(0, a %= 1);
+  }
+  {
+    Counter a = 3;
+    ASSERT_EQ(1, a %= 2);
+  }
+  {
+    Counter a = 0xABCDULL * 0x1234ULL;
+    ASSERT_EQ(0, a %= 0x1234ULL);
+  }
+  {
+    Counter a("123456789012345678901234567890");
+    ASSERT_EQ(0, a %= a);
+  }
+  {
+    Counter a("1089471298729846791285729571829");
+    Counter b("410872198572985729852795843");
+    Counter c("447633467791298266595209587598769239788656232418941106847");
+    ASSERT_EQ(7, (c + 7) %= a);
+    c = Counter("447633467791298266595209587598769239788656232418941106847");
+    ASSERT_EQ(13, (c + 13) %= b);
+  }
+}
+
 TEST(CNumCounter, LeftShiftAssignment) {
   {
     Counter a = 0;
@@ -724,7 +775,7 @@ TEST(CNumCounter, Division) {
     ASSERT_DEATH(a / 0, "");
     ASSERT_EQ(111111, a = 333333 / a);
 
-    Counter b = 1234567890ULL;
+    Counter b = 1234567899ULL;
     ASSERT_EQ(123456789ULL, b / 10);
   }
   {
@@ -732,6 +783,24 @@ TEST(CNumCounter, Division) {
               Counter("44638112098138407571318574082261234507924739492194936899"
                       "01791797045200") /
                   Counter("34593847589345734085430857340853480"));
+  }
+}
+
+TEST(CNumCounter, Mod) {
+  {
+    Counter a = 3;
+    ASSERT_EQ(1, a % 2);
+    ASSERT_DEATH(a % 0, "");
+    ASSERT_EQ(2, a = 333335 % a);
+
+    Counter b = 1234567894ULL;
+    ASSERT_EQ(4, b % 10);
+  }
+  {
+    ASSERT_EQ(
+        Counter("3069812820931554"),
+        Counter("447633467791298266595209587598769239788656232418941106847") %
+            Counter("43985734954932857"));
   }
 }
 

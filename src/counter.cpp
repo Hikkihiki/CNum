@@ -351,6 +351,16 @@ CNum::Counter &CNum::Counter::operator/=(const Counter &rhs) {
     rem -= ub;
   }
   *this = sol;
+  assert(isNormalized());
+  return *this;
+}
+
+CNum::Counter &CNum::Counter::operator%=(const Counter &rhs) {
+  assert(isNormalized());
+  assert(rhs.isNormalized());
+  assert(rhs > 0);
+  *this -= (*this / rhs * rhs);
+  assert(isNormalized());
   return *this;
 }
 
@@ -465,6 +475,10 @@ CNum::Counter CNum::operator*(Counter lhs, const Counter &rhs) {
 
 CNum::Counter CNum::operator/(Counter lhs, const Counter &rhs) {
   return lhs /= rhs;
+}
+
+CNum::Counter CNum::operator%(Counter lhs, const Counter &rhs) {
+  return lhs %= rhs;
 }
 
 CNum::Counter CNum::operator<<(Counter lhs, const Counter &rhs) {
