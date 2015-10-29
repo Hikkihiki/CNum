@@ -349,6 +349,14 @@ CNum::Counter CNum::Counter::pow(const Counter &rhs) const {
   return rv;
 }
 
+CNum::Counter CNum::Counter::log2() const {
+  assert(isNormalized());
+  if (*this == 0) {
+    throw;
+  }
+  return bitSize() - 1;
+}
+
 CNum::Counter &CNum::Counter::operator<<=(const Counter &rhs) {
   assert(rhs.value.size() == 1);
   // assert(rhs.unit() % UNIT_BIT_SIZE == 0);

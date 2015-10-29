@@ -674,6 +674,18 @@ TEST(CNumCounter, HexConversion) {
   }
 }
 
+TEST(CNumCounter, Log2) {
+  ASSERT_DEATH(Counter("0").log2(), "");
+  ASSERT_EQ(0, Counter("1").log2());
+  ASSERT_EQ(1, Counter("2").log2());
+  ASSERT_EQ(1, Counter("3").log2());
+  ASSERT_EQ(2, Counter("4").log2());
+  ASSERT_EQ(117, Counter("189234729847298573987298673896981073").log2());
+  ASSERT_EQ(
+      207,
+      Counter("0xABCDEF4385927358932759345872389537593207532089ABCDEF").log2());
+}
+
 /*
  TEST(CNumCounter, PrefixDecrement) {
  {

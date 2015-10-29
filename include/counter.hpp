@@ -80,6 +80,7 @@ public:
   Counter &operator/=(const Counter &);
 
   Counter pow(const Counter &) const;
+  Counter log2() const; // O(1): floor(log2(x))
 
   // Counter& operator <<(const Counter& rhs);
   Counter &operator<<=(const Counter &rhs);
