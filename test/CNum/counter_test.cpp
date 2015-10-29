@@ -66,9 +66,9 @@ INSTANTIATE_TEST_CASE_P(
         std::make_tuple(0x7F, 7, 1, 0x3F81, 7, 0),
         std::make_tuple(0xFA00000000000000, 3, 1, 0xD000000000000001, 3, 7),
         std::make_tuple(CNum::UNIT_MAX, 1, 1, CNum::UNIT_MAX, 1, 1),
-        std::make_tuple(CNum::UNIT_MAX, sizeof(Unit) * 8 - 1, 0,
-                        CNum::UNIT_MAX << (sizeof(Unit) * 8 - 1),
-                        sizeof(Unit) * 8 - 1, CNum::UNIT_MAX >> 1),
+        std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_BIT_SIZE - 1, 0,
+                        CNum::UNIT_MAX << (CNum::UNIT_BIT_SIZE - 1),
+                        CNum::UNIT_BIT_SIZE - 1, CNum::UNIT_MAX >> 1),
         std::make_tuple(CNum::UNIT_MAX, 15, 0x7FFF, CNum::UNIT_MAX, 15, 0x7FFF),
         std::make_tuple(CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
                         CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0),
@@ -80,6 +80,46 @@ TEST_P(LeftShiftTest, SanityTest) {
     ASSERT_DEATH(CNum::left_shift(unit, shift, filler), "");
   } else {
     CNum::left_shift(unit, shift, filler);
+    ASSERT_EQ(exp_unit, unit);
+    ASSERT_EQ(exp_shift, shift);
+    ASSERT_EQ(exp_filler, filler);
+  }
+};
+
+class RightShiftTest : public ::testing::TestWithParam<
+                           std::tuple<Unit, Unit, Unit, Unit, Unit, Unit>> {};
+
+INSTANTIATE_TEST_CASE_P(
+    CNumUnit, RightShiftTest,
+    ::testing::Values(
+        std::make_tuple(0, 0, 0, 0, 0, 0),
+        std::make_tuple(1, 1, 0, 0, 1, 1ULL << (CNum::UNIT_BIT_SIZE - 1)),
+        std::make_tuple(3, 2, 0, 0, 2, 3ULL << (CNum::UNIT_BIT_SIZE - 2)),
+        std::make_tuple(0xFF, 4, 0, 0xF, 4, 0xFULL
+                                                << (CNum::UNIT_BIT_SIZE - 4)),
+        std::make_tuple(0xFF, 7, 1, 1, 7, 0x7FULL << (CNum::UNIT_BIT_SIZE - 7)),
+        std::make_tuple(0xFAULL << (CNum::UNIT_BIT_SIZE - 8), 3, 0,
+                        0x1f4ULL << (CNum::UNIT_BIT_SIZE - 12), 3, 0),
+        std::make_tuple(CNum::UNIT_MAX, 1, 1ULL << (CNum::UNIT_BIT_SIZE - 1),
+                        CNum::UNIT_MAX, 1, 1ULL << (CNum::UNIT_BIT_SIZE - 1)),
+        std::make_tuple(CNum::UNIT_MAX, CNum::UNIT_BIT_SIZE - 1, 0, 1,
+                        CNum::UNIT_BIT_SIZE - 1, CNum::UNIT_MAX << 1),
+        std::make_tuple(CNum::UNIT_MAX, 15,
+                        0x7FFFULL << (CNum::UNIT_BIT_SIZE - 15), CNum::UNIT_MAX,
+                        15, 0x7FFFULL << (CNum::UNIT_BIT_SIZE - 15)),
+        std::make_tuple(CNum::UNIT_MAX / 2, CNum::UNIT_MAX / 2, 1,
+                        CNum::UNIT_MAX, CNum::UNIT_MAX / 2, 0),
+        std::make_tuple(0xABCD, 12, 0x1ULL << (CNum::UNIT_BIT_SIZE - 4),
+                        0x1ULL << (CNum::UNIT_BIT_SIZE - 4) | 0xA, 12,
+                        0xBCDULL << (CNum::UNIT_BIT_SIZE - 12))));
+
+TEST_P(RightShiftTest, SanityTest) {
+  Unit unit, shift, filler, exp_unit, exp_shift, exp_filler;
+  std::tie(unit, shift, filler, exp_unit, exp_shift, exp_filler) = GetParam();
+  if (shift >= sizeof(Unit) * 8) {
+    ASSERT_DEATH(CNum::right_shift(unit, shift, filler), "");
+  } else {
+    CNum::right_shift(unit, shift, filler);
     ASSERT_EQ(exp_unit, unit);
     ASSERT_EQ(exp_shift, shift);
     ASSERT_EQ(exp_filler, filler);
@@ -422,6 +462,10 @@ TEST(CNumCounter, SubtractionAssignment) {
     ASSERT_EQ(99999999ULL - 1234567, a -= 1234567);
   }
   {
+    Counter a("84937593802573428905739573988943275238057305957");
+    ASSERT_EQ(0, a -= a);
+  }
+  {
     Counter b = 99999999ULL;
     Counter a = b;
     for (long i = 0; i < 1000LL; ++i) {
@@ -455,6 +499,12 @@ TEST(CNumCounter, MultiplicationAssignment) {
   {
     Counter a = 0xABCDULL;
     ASSERT_EQ(0xABCDULL * 0x1234ULL, a *= 0x1234ULL);
+  }
+  {
+    Counter a("123456789012345678901234567890");
+    ASSERT_EQ(
+        Counter("15241578753238836750495351562536198787501905199875019052100"),
+        a *= a);
   }
   {
     Counter a = 1;

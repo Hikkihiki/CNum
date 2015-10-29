@@ -32,8 +32,8 @@ void mul(Unit &unit1, const Unit &unit2, Unit &carry);
 // unit = (unit << shift) | filler, filler = dropped bits
 void left_shift(Unit &unit, const Unit &shift, Unit &filler);
 
-// unit1 = (unit1 - borrow) / unit2 , borrow = new borrow
-void div(Unit &unit1, const Unit &unit2, Unit &borrow);
+// unit = (unit >> shift) | filler, filler = dropped bits
+void right_shift(Unit &unit, const Unit &shift, Unit &filler);
 
 class Counter {
 public:
@@ -82,7 +82,9 @@ public:
   Counter pow(const Counter &) const;
 
   // Counter& operator <<(const Counter& rhs);
-  Counter &operator<<=(const Counter &rhs);
+  Counter &operator<<=(const Counter &);
+  // Counter& operator <<(const Counter& rhs);
+  Counter &operator>>=(const Counter &);
 
   // Down Casting
   unsigned long long ull() const;

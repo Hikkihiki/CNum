@@ -60,6 +60,14 @@ void CNum::left_shift(Unit &unit, const Unit &shift, Unit &filler) {
   filler = newFiller;
 }
 
+void CNum::right_shift(Unit &unit, const Unit &shift, Unit &filler) {
+  assert(0 <= shift && shift < UNIT_BIT_SIZE);
+  Unit newFiller = unit << (UNIT_BIT_SIZE - shift);
+  unit >>= shift;
+  unit |= filler;
+  filler = newFiller;
+}
+
 CNum::Counter::Counter(unsigned long long v) : value() {
   assert(sizeof(unsigned long long) <= sizeof(Unit));
   value.push_back(v);
@@ -266,6 +274,7 @@ CNum::Counter &CNum::Counter::operator=(const Counter &rhs) {
   return *this;
 }
 
+// Doing in place computation could be dangerous...
 CNum::Counter &CNum::Counter::operator+=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
@@ -282,6 +291,7 @@ CNum::Counter &CNum::Counter::operator+=(const Counter &rhs) {
   return *this;
 }
 
+// Doing in place computation could be dangerous...
 CNum::Counter &CNum::Counter::operator-=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
@@ -292,6 +302,7 @@ CNum::Counter &CNum::Counter::operator-=(const Counter &rhs) {
     Unit r = pos >= rhs.value.size() ? 0 : rhs.value[pos];
     CNum::sub(value[pos], r, borrow);
   }
+  normalize();
   assert(isNormalized());
   return *this;
 }
@@ -319,9 +330,15 @@ CNum::Counter &CNum::Counter::operator*=(const Counter &rhs) {
   return *this;
 }
 
+// Doing division by binary search...
 CNum::Counter &CNum::Counter::operator/=(const Counter &rhs) {
   assert(isNormalized());
   assert(rhs.isNormalized());
+  // find upperbound
+  Counter ub(rhs);
+  while (ub < *this) {
+    ub *= 2;
+  }
 
   Counter sol = 0;
   Unit pos = 0;
@@ -379,25 +396,43 @@ bool CNum::Counter::isSet(const Unit &idx) const {
 
 CNum::Counter &CNum::Counter::operator<<=(const Counter &rhs) {
   assert(rhs.value.size() == 1);
-  // assert(rhs.unit() % UNIT_BIT_SIZE == 0);
   if (*this == 0) {
     return *this;
   }
-  if (Unit r = rhs.value[0] % UNIT_BIT_SIZE) {
+
+  const Unit div = rhs[0] / UNIT_BIT_SIZE;
+  const Unit rem = rhs[0] % UNIT_BIT_SIZE;
+
+  // fine shift
+  if (rem) {
     Unit filler = 0;
     for (Unit i = 0; i < value.size(); ++i) {
-      CNum::left_shift(value[i], r, filler);
+      CNum::left_shift(value[i], rem, filler);
     }
     if (filler) {
       value.push_back(filler);
     }
   }
   assert(isNormalized());
-  for (Unit i = 0; i < rhs.value[0] / UNIT_BIT_SIZE; ++i) {
+  // coarse shift
+  for (Unit i = 0; i < div; ++i) {
     value.insert(value.cbegin(), 0);
   }
   assert(isNormalized());
   return *this;
+}
+
+CNum::Counter &CNum::Counter::operator>>=(const Counter &rhs) {
+  assert(rhs.value.size() == 1);
+  if (*this == 0) {
+    return *this;
+  }
+  const Unit div = rhs[0] / UNIT_BIT_SIZE;
+  const Unit rem = rhs[0] % UNIT_BIT_SIZE;
+  // fine shift
+  if (rem) {
+    Unit filler = 0;
+  }
 }
 
 CNum::Counter CNum::operator+(Counter lhs, const Counter &rhs) {
