@@ -463,6 +463,10 @@ CNum::Counter CNum::operator*(Counter lhs, const Counter &rhs) {
   return lhs *= rhs;
 }
 
+CNum::Counter CNum::operator/(Counter lhs, const Counter &rhs) {
+  return lhs /= rhs;
+}
+
 CNum::Counter CNum::operator<<(Counter lhs, const Counter &rhs) {
   return lhs <<= rhs;
 }

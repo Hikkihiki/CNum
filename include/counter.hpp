@@ -126,6 +126,7 @@ private:
 Counter operator+(Counter lhs, const Counter &rhs);
 Counter operator-(Counter lhs, const Counter &rhs);
 Counter operator*(Counter lhs, const Counter &rhs);
+Counter operator/(Counter lhs, const Counter &rhs);
 Counter operator<<(Counter lhs, const Counter &rhs);
 Counter operator>>(Counter lhs, const Counter &rhs);
 

@@ -717,6 +717,24 @@ TEST(CNumCounter, Muplication) {
   }
 }
 
+TEST(CNumCounter, Division) {
+  {
+    Counter a = 3;
+    ASSERT_EQ(1, a / 2);
+    ASSERT_DEATH(a / 0, "");
+    ASSERT_EQ(111111, a = 333333 / a);
+
+    Counter b = 1234567890ULL;
+    ASSERT_EQ(123456789ULL, b / 10);
+  }
+  {
+    ASSERT_EQ(Counter("129034829048290428904280494390583490"),
+              Counter("44638112098138407571318574082261234507924739492194936899"
+                      "01791797045200") /
+                  Counter("34593847589345734085430857340853480"));
+  }
+}
+
 TEST(CNumCounter, LeftShift) {
   {
     Counter a = 0;
