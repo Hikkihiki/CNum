@@ -342,16 +342,19 @@ CNum::Counter CNum::Counter::pow(const Counter &rhs) const {
     return 1;
   // *this >=1 && rhs >=1 here
   // Do repeated square algorithm
-  Counter rv(*this);
-  const Unit SQ_SIZE = rhs.log2().ull();
+  const Unit SQ_SIZE = rhs.bitSize();
+  assert(SQ_SIZE >= 1);
   std::vector<Counter> sq(SQ_SIZE);
-  sq.push_back(*this);
+  sq[0] = *this;
   for (Unit i = 1; i < SQ_SIZE; ++i) {
-    sq.push_back(sq[i - 1] * sq[i - 1]);
+    sq[i] = sq[i - 1] * sq[i - 1];
   }
-
-  sq.push_back(1);
-
+  Counter rv(1);
+  for (Unit i = 0; i < SQ_SIZE; ++i) {
+    if (rhs.isSet(i)) {
+      rv *= sq[i];
+    }
+  }
   return rv;
 }
 
@@ -370,8 +373,6 @@ bool CNum::Counter::isSet(const Unit &idx) const {
   }
   Unit div = idx / CNum::UNIT_BIT_SIZE;
   Unit rem = idx % CNum::UNIT_BIT_SIZE;
-  printf("%llu %llu\n", div, rem);
-  printf("%llx\n", value[div]);
   const Unit FILTER = 1;
   return (value[div] & (FILTER << rem));
 }
