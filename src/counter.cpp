@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <utility>
 
 const CNum::Unit HEX_CHAR_SIZE = 4;
 
@@ -390,6 +391,25 @@ CNum::Counter CNum::Counter::pow(const Counter &rhs) const {
   return rv;
 }
 
+// Simple O(log n) Algo
+CNum::Counter CNum::sqrt(const CNum::Counter &c) {
+  if (c == 0)
+    return 0;
+
+  // binary search between 1^2 and c^2
+  Counter lb = 1;
+  Counter ub = c;
+  while (ub - lb > 1) {
+    Counter mid = (ub + lb) / 2;
+    if (mid * mid > c) {
+      ub = mid;
+    } else {
+      lb = mid;
+    }
+  }
+  return lb;
+}
+
 CNum::Counter CNum::Counter::log2() const {
   assert(isNormalized());
   if (*this == 0) {
@@ -487,6 +507,28 @@ CNum::Counter CNum::operator<<(Counter lhs, const Counter &rhs) {
 
 CNum::Counter CNum::operator>>(Counter lhs, const Counter &rhs) {
   return lhs >>= rhs;
+}
+
+bool CNum::isPrime(const Counter &c) {
+  return true;
+  return true;
+}
+
+CNum::Counter CNum::gcd(Counter a, Counter b) {
+  assert(a != 0 && b != 0);
+  if (a < b)
+    std::swap(a, b);
+  assert(a >= b);
+  if (a % b == 0) {
+    return b;
+  }
+  return b > 0 ? gcd(b, a % b)
+               : a; // replace with implicit bool conversion later
+}
+
+CNum::Counter CNum::lcm(Counter a, Counter b) {
+  assert(a != 0 && b != 0);
+  return a / gcd(a, b) * b;
 }
 
 CNum::Counter &CNum::Counter::operator++() {

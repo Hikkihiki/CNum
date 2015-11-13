@@ -51,6 +51,14 @@ public:
   // copy assignment
   Counter &operator=(const Counter &rhs);
 
+  // move assignment
+  // Counter &operator=(Counter &&) = default;
+  // move constructor
+  // Counter(Counter &&) = default;
+
+  // implict bool conversion
+  // operator bool() const { return true; }
+
   // == operator is declared as free function so that
   // 1 == Counter(1) is valid expression
   friend bool operator==(const Counter &, const Counter &);
@@ -138,6 +146,11 @@ bool operator<(const Counter &, const Counter &);
 bool operator>(const Counter &, const Counter &);
 bool operator<=(const Counter &, const Counter &);
 bool operator>=(const Counter &, const Counter &);
+
+Counter gcd(Counter, Counter);
+Counter lcm(Counter, Counter);
+Counter sqrt(const Counter &); // floor after square root
+bool isPrime(const Counter &);
 
 std::ostream &operator<<(std::ostream &, const Counter &);
 }

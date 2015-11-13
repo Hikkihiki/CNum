@@ -990,6 +990,83 @@ TEST(CNumCounter, isSet) {
   ASSERT_FALSE(a.isSet(2));
 }
 
+TEST(CNumCounter, sqrt) {
+  ASSERT_EQ(0, sqrt(Counter(0)));
+  ASSERT_EQ(1, sqrt(Counter(1)));
+  ASSERT_EQ(1, sqrt(Counter(2)));
+  ASSERT_EQ(1, sqrt(Counter(3)));
+  ASSERT_EQ(2, sqrt(Counter(4)));
+  ASSERT_EQ(2, sqrt(Counter(5)));
+  ASSERT_EQ(2, sqrt(Counter(6)));
+  ASSERT_EQ(2, sqrt(Counter(7)));
+  ASSERT_EQ(2, sqrt(Counter(8)));
+  ASSERT_EQ(3, sqrt(Counter(9)));
+  ASSERT_EQ(3, sqrt(Counter(10)));
+  ASSERT_EQ(3, sqrt(Counter(11)));
+  Counter c("420857389572398");
+  ASSERT_EQ(c - 1, sqrt(c * c - 1));
+  ASSERT_EQ(c, sqrt(c * c));
+  ASSERT_EQ(c, sqrt(c * c + 1));
+}
+
+TEST(CNumCounter, gcd) {
+  ASSERT_DEATH(gcd(Counter(0), Counter(0)), "");
+  ASSERT_DEATH(gcd(Counter(0), Counter(1)), "");
+  ASSERT_DEATH(gcd(Counter(1), Counter(0)), "");
+  ASSERT_EQ(1, gcd(Counter(1), Counter(1)));
+  ASSERT_EQ(1, gcd(Counter(1), Counter(2)));
+  ASSERT_EQ(1, gcd(Counter(1), Counter(10)));
+  ASSERT_EQ(1, gcd(Counter(1), Counter("34809257398573985732957398537493")));
+  ASSERT_EQ(
+      1, gcd(Counter("423058734895724985734985473985724389057"), Counter(1)));
+  ASSERT_EQ(2, gcd(Counter(2), Counter(2)));
+  ASSERT_EQ(1, gcd(Counter(2), Counter(3)));
+  ASSERT_EQ(2, gcd(Counter(2), Counter(4)));
+  ASSERT_EQ(3, gcd(Counter(3), Counter(6)));
+  ASSERT_EQ(4, gcd(Counter(8), Counter(4)));
+  ASSERT_EQ(4, gcd(Counter(8), Counter(4)));
+  ASSERT_EQ(2, gcd(Counter(8), Counter(6)));
+
+  Counter a("2439507234584375982375938457239537249");
+  Counter b("483975239857923485743985723985");
+  Counter c("1180661098993112981928553528130962217532052"
+            "961002553849763640217265");
+  ASSERT_EQ(a, gcd(a, c));
+  ASSERT_EQ(a, gcd(c, a));
+  ASSERT_EQ(b, gcd(b, c));
+  ASSERT_EQ(b, gcd(c, b));
+}
+
+TEST(CNumCounter, lcm) {
+  ASSERT_DEATH(lcm(Counter(0), Counter(0)), "");
+  ASSERT_DEATH(lcm(Counter(0), Counter(1)), "");
+  ASSERT_DEATH(lcm(Counter(1), Counter(0)), "");
+  ASSERT_EQ(1, lcm(Counter(1), Counter(1)));
+  ASSERT_EQ(2, lcm(Counter(1), Counter(2)));
+  ASSERT_EQ(10, lcm(Counter(1), Counter(10)));
+  ASSERT_EQ(Counter("34809257398573985732957398537493"),
+            lcm(Counter(1), Counter("34809257398573985732957398537493")));
+  ASSERT_EQ(
+      Counter("423058734895724985734985473985724389057"),
+      lcm(Counter("423058734895724985734985473985724389057"), Counter(1)));
+  ASSERT_EQ(2, lcm(Counter(2), Counter(2)));
+  ASSERT_EQ(6, lcm(Counter(2), Counter(3)));
+  ASSERT_EQ(4, lcm(Counter(2), Counter(4)));
+  ASSERT_EQ(6, lcm(Counter(3), Counter(6)));
+  ASSERT_EQ(8, lcm(Counter(8), Counter(4)));
+  ASSERT_EQ(8, lcm(Counter(8), Counter(4)));
+  ASSERT_EQ(24, lcm(Counter(8), Counter(6)));
+
+  Counter a("2439507234584375982375938457239537249");
+  Counter b("483975239857923485743985723985");
+  Counter c("1180661098993112981928553528130962217532052"
+            "961002553849763640217265");
+  ASSERT_EQ(c, lcm(a, c));
+  ASSERT_EQ(c, lcm(c, a));
+  ASSERT_EQ(c, lcm(b, c));
+  ASSERT_EQ(c, lcm(c, b));
+}
+
 /*
  TEST(CNumCounter, PrefixDecrement) {
  {
