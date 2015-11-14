@@ -13,10 +13,10 @@ namespace CNum {
 // A unit is defined to be unsigned primitive type
 // It should have implicit conversion to unsigned long long
 typedef uint64_t Unit;
-typedef int64_t Index;
+typedef uint64_t Index;
 typedef uint64_t Size;
 
-const Unit UNIT_MAX = -1;
+const Unit UNIT_MAX = static_cast<Unit>(-1);
 // const Unit UNIT_MIN = 0;
 const Unit UNIT_BIT_SIZE = sizeof(Unit) * 8;
 

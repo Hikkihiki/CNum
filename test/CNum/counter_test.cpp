@@ -241,7 +241,7 @@ TEST(CNumCounter, ExpicitConstructor) {
     ASSERT_EQ(0, a);
   }
   {
-    Counter a(-1);
+    Counter a(static_cast<Unit>(-1));
     ASSERT_EQ(-1, a);
   }
   {
@@ -340,7 +340,7 @@ TEST(CNumCounter, CopyConstructor) {
     ASSERT_EQ(10, a);
   }
   {
-    Counter a = -10;
+    Counter a = static_cast<Unit>(-10);
     ASSERT_EQ(-10, a);
   }
   {
@@ -356,7 +356,7 @@ TEST(CNumCounter, CopyAssignment) {
   ASSERT_EQ(20, a);
   a = 30L;
   ASSERT_EQ(30, a);
-  a = -20;
+  a = static_cast<Unit>(-20);
   ASSERT_EQ(-20, a);
 }
 
@@ -847,9 +847,9 @@ TEST(CNumCounter, NotEquals) {
   ASSERT_FALSE(1L != a);
 
   ASSERT_TRUE(a != 0);
-  ASSERT_TRUE(a != -1L);
+  ASSERT_TRUE(a != static_cast<Unit>(-1));
   ASSERT_TRUE(0 != a);
-  ASSERT_TRUE(-1L != a);
+  ASSERT_TRUE(static_cast<Unit>(-1) != a);
 
   ASSERT_TRUE(a != Counter(2));
   ASSERT_FALSE(a != Counter(1L));

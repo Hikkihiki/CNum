@@ -186,10 +186,10 @@ bool CNum::operator<(const Counter &lhs, const Counter &rhs) {
   assert(lhs.isNormalized());
   assert(rhs.isNormalized());
   if (lhs.value.size() == rhs.value.size()) {
-    for (Index pos = lhs.value.size() - 1; pos >= 0; --pos) {
-      if (lhs.value[pos] == rhs.value[pos])
+    for (Index pos = lhs.value.size(); pos != 0; --pos) {
+      if (lhs.value[pos-1] == rhs.value[pos-1])
         continue;
-      return lhs.value[pos] < rhs.value[pos];
+      return lhs.value[pos-1] < rhs.value[pos-1];
     }
     return false;
   }
@@ -230,10 +230,10 @@ std::string CNum::Counter::hex() const {
       Unit shift = HEX_CHAR_SIZE * (CHAR_NUM - i - 1);
       Unit u = (*itr & (filter << shift)) >> shift;
       if (u <= 9) {
-        rv.push_back(u + '0');
+        rv.push_back(static_cast<char>(u) + '0');
       } else {
         assert(0xA <= u && u <= 0xF);
-        rv.push_back(u - 10 + 'A');
+        rv.push_back(static_cast<char>(u) - 10 + 'A');
       }
     }
   }
@@ -426,7 +426,7 @@ bool CNum::Counter::isSet(const Unit &idx) const {
   Unit div = idx / CNum::UNIT_BIT_SIZE;
   Unit rem = idx % CNum::UNIT_BIT_SIZE;
   const Unit FILTER = 1;
-  return (value[div] & (FILTER << rem));
+  return (value[div] & (FILTER << rem)) != 0;
 }
 
 CNum::Counter &CNum::Counter::operator<<=(const Counter &rhs) {
@@ -509,8 +509,7 @@ CNum::Counter CNum::operator>>(Counter lhs, const Counter &rhs) {
   return lhs >>= rhs;
 }
 
-bool CNum::isPrime(const Counter &c) {
-  return true;
+bool CNum::isPrime(const Counter &) {
   return true;
 }
 
